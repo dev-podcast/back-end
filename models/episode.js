@@ -5,6 +5,7 @@ var Schema = mongoose.Schema;
 
 var episodeSchema = new Schema({
   
+  podcast: String,
   title: { type: String, required: true },
   description: String,
   url: String,
