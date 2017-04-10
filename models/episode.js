@@ -14,6 +14,7 @@ var episodeSchema = new Schema({
   duration: Number,   
   tags: [{ type: Schema.Types.ObjectId, ref: 'Tag'}] 
 });
+  guests: [{ type: Schema.Types.ObjectId, ref: 'Guests'}] 
 
 var Podcast = mongoose.model('Episode', episodeSchema); 
 
