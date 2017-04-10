@@ -4,15 +4,15 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var episodeSchema = new Schema({
-  
-  podcast: String,
+  ep_id: { type: Number, required: true },
   title: { type: String, required: true },
+  show: { type: String, required: true },
+  show_id: Number, 
   description: String,
-  url: String,
-  airDate: Date,
-  length: Number,   
+  audio_url: String,
+  date_created: Date,
+  duration: Number,   
   tags: [{ type: Schema.Types.ObjectId, ref: 'Tag'}] 
-
 });
 
 var Podcast = mongoose.model('Episode', episodeSchema); 
