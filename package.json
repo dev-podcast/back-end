@@ -22,8 +22,12 @@
   },
   "homepage": "https://github.com/dev-podcast/dev-podcast#readme",
   "dependencies": {
+    "audiosearch-client-node": "^1.0.0",
     "bluebird": "^3.5.0",
+    "events": "^1.1.1",
     "express": "^4.15.2",
-    "mongoose": "^4.9.3"
+    "mongoose": "^4.9.3",
+    "promise": "^7.1.1",
+    "request": "^2.81.0"
   }
 }
