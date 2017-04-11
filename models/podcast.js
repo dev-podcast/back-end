@@ -11,7 +11,7 @@ var podcastSchema = new Schema({
     description: String, 
     img_url: String,
     show_url: String,
-    hosts: [{ type: Schema.Types.ObjectId, ref: 'Hosts'}] 
+    hosts: [{ type: Schema.Types.ObjectId, ref: 'Hosts'}],
     recent_episode_date: Date,
     tags: [{ type: Schema.Types.ObjectId, ref: 'Tag'}] //Reference the Tag/Focus schema
 });
