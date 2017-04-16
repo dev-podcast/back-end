@@ -1,0 +1,37 @@
+
+var ItunesPodcast = {
+    wrapperType: null, 
+    kind:null, 
+    collectionId: null, 
+    trackId: null, 
+    artistName : null, 
+    collectionName: null, 
+    trackName: null, 
+    collectionCensoredName : null, 
+    trackCensoredName: null, 
+    collectionViewUrl: null, 
+    feedUrl: null, 
+    trackViewUrl: null, 
+    artworkUrl130: null, 
+    artworkUrl160: null, 
+    artworkUrl100: null, 
+    collectionPrice: null, 
+    trackPrice: null, 
+    trackRentalPrice: null, 
+    collectionHdPrice: null,
+    trackHdPrice: null,
+    trackHdRentalPrice: null,
+    releaseDate: null, 
+    collectionExplicitness: null, 
+    trackCount: null, 
+    country: null, 
+    currency: null, 
+    primaryGenreName: null, 
+    contentAdvisoryRating: null, 
+    artworkUrl600: null, 
+    genreIds: [], 
+    genres: [],
+}
+
+
+module.exports = ItunesPodcast;

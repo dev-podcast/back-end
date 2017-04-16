@@ -26,6 +26,8 @@
     "bluebird": "^3.5.0",
     "events": "^1.1.1",
     "express": "^4.15.2",
+    "itunes-search": "^1.0.1",
+    "jquery": "^3.2.1",
     "mongoose": "^4.9.3",
     "promise": "^7.1.1",
     "request": "^2.81.0"
