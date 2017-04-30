@@ -29,6 +29,7 @@
     "itunes-search": "^1.0.1",
     "jquery": "^3.2.1",
     "mongoose": "^4.9.3",
+    "mongoose-sequence": "^3.2.0",
     "promise": "^7.1.1",
     "request": "^2.81.0"
   }
