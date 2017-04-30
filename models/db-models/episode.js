@@ -12,10 +12,11 @@ var episodeSchema = new Schema({
   audio_url: String,
   date_created: Date,
   duration: Number,   
-  tags: [{ type: Schema.Types.ObjectId, ref: 'Tag'}] 
-});
+  tags: [{ type: Schema.Types.ObjectId, ref: 'Tag'}],
   guests: [{ type: Schema.Types.ObjectId, ref: 'Guests'}] 
+});
+ 
 
-var Podcast = mongoose.model('Episode', episodeSchema); 
+var Episode = mongoose.model('Episode', episodeSchema); 
 
 module.exports = Episode; 
