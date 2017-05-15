@@ -24,30 +24,41 @@ podcastSchema.plugin(AutoIncrement, {inc_field: 'show_id'});
 
 //Static method that queries the DB and returns all podcasts
 podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) { 
-    return this.model('Podcast').findOne({}, function(err, docs){
-        if(!err) {
-            if(docs != null){
+    var promise = this.model('Podcast').find({}).exec();
+    return promise.then(function(docs){
+        if(docs != null) {
             var resultset = [];
-            docs.forEach(function (record){
+            var len = docs.length;
+            docs.forEach(function(record){
                 resultset.push(record._doc);
             });
             console.log(docs);
-           // process.exit();
-           return resultset;
+            return resultset;
         }
-        } else {throw err}
     });
 };
 
 
 //Static method that gets a podcast with the specified show_id
 podcastSchema.statics.getPodcastByID = function getPodcastByID(id, callback) {
-    return this.model('Podcast').where('show_id').equals(id);
+    var promise = this.model('Podcast').where('show_id').equals(id).exec();
+    return promise.then(function(doc){
+        if(doc != null) {
+            var result = doc[0]._doc;
+            return result;
+        }
+    });
 };
 
 //Static method that gets the podcasts with the specified category code
 podcastSchema.statics.getPodcastsByCategory = function getPodcastsByCategory(cat, callback) {
-    return this.model('Podcast').where('category.code').equals(cat);
+    var promise =  this.model('Podcast').where('category.code').equals(cat);
+    return promise.then(function(doc){
+        if(doc != null) {
+            var result = doc[0]._doc;
+            return result;
+        }
+    })
 }
 
 //Create a model using the schema we created.
