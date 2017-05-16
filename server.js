@@ -23,25 +23,24 @@ var audiosearch = new Audiosearch(AUDIOSEARCH_APP_ID, AUDIOSEARCH_SECRET);
 
 var base_pod_list_dir = "./base_pod_list"
 
+//Server start
 
-// Connection URL to the podcast database
+var initializeDB = function() {
+    // Connection URL to the podcast database
 var url = 'mongodb://localhost:27017/podcasts';
 
 mongoose.Promise = Promise; //Set the promise object for mongoose. 
 mongoose.connect(url); //Connect to the running mongoDB instance
 
-
-
+}
 
 var initializeData = function() {
          
          insertDefaultPodcastCategories(); //Method that updates the Categories collection/table with initial data if there is none. 
          insertDefaultTags(); //Method that updates the Tags collection/table with initial data if there is none. 
-         insertBasePodcastList(); //Method that updates the Base Podcast collection/table with initial data if there is none. 
-
+        // insertBasePodcastList(); //Method that updates the Base Podcast collection/table with initial data if there is none. 
 }
 
-initializeData();
 
 
 function insertBasePodcastList() {
@@ -113,14 +112,55 @@ function insertDefaultTags() {
     });
 }
 
+
+
+
+initializeDB();
+initializeData();
+
+
+
+
 /******** Begin section for handling server requests**************** */
 
-app.get('/', function (req, res) { //Main page
-    if(req.statusCode == 200) { //OK
-        
-    }
-   
+
+
+
+var server = app.listen(8081, function(){
+    var host = server.address().address;
+    var port = server.address().port;
+
+    console.log("Example app listening at http://%s:%s", host, port)
 });
+
+//Get all podcasts
+app.get('/api/podcasts', function (req, res) { //Main page
+        Podcast.getAllPodcasts().then(function(result) {
+            if(result != null && result.length > 0){
+                console.log(result);
+                res.end(JSON.stringify(result));
+            }   
+        });  
+});
+
+//All podcasts for a specific category
+app.get('/api/category/:type', function(req, res) {
+    var cat = req.param('type');
+    Podcast.getPodcastsByCategory(cat).then(function(result) {
+        res.end(JSON.stringify(result));
+    });
+});
+
+
+//Get the podcast with the specified ID 
+app.get('/api/podcasts/:id', function(req, res) {
+    var id = req.param('id');
+    Podcast.getPodcastByID(id).then(function(result) {
+        res.end(JSON.stringify(result));
+    });
+});
+
+
 
 
 /*
@@ -194,27 +234,27 @@ audiosearch.searchShows('Take up Code').then(function(results){
 // });
 
 
-function test() {
+// function test() {
    
-   Podcast.getAllPodcasts().then(function(result) {
-        if(result != null && result.length > 0){
-            console.log(result);
-        }   
-    });
+//    Podcast.getAllPodcasts().then(function(result) {
+//         if(result != null && result.length > 0){
+//             console.log(result);
+//         }   
+//     });
 
-   Podcast.getPodcastByID(1, function(req, res){
-        console.log(req);
-        console.log(res);
-    }).then(function(result){
-        if(result != null) {
-            var pod = result[0]._doc;
-        }
-        console.log(result);
-    });   
-}
+//    Podcast.getPodcastByID(1, function(req, res){
+//         console.log(req);
+//         console.log(res);
+//     }).then(function(result){
+//         if(result != null) {
+//             var pod = result[0]._doc;
+//         }
+//         console.log(result);
+//     });   
+// }
 
 
-test();
+// test();
 
 
 /*

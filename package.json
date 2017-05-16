@@ -15,7 +15,7 @@
     "podcast",
     "list"
   ],
-  "author": "Anna , Matt",
+  "author": "Anna Harrington, Matthieu Leonard",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/dev-podcast/dev-podcast/issues"
@@ -30,6 +30,7 @@
     "jquery": "^3.2.1",
     "mongoose": "^4.9.3",
     "mongoose-sequence": "^3.2.0",
+    "morgan": "^1.8.1",
     "promise": "^7.1.1",
     "request": "^2.81.0"
   }
