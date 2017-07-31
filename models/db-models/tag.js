@@ -30,12 +30,38 @@ var AutoIncrement = require('mongoose-sequence');
 //Define our model's properties/attributes and their respective types. 
 var tagSchema = new Schema({
     description: String, 
-    code: Number
+    code: Number,
 });
 
 //plugin that will reference the code field and cause it to auto increment each time a new record is added. 
 tagSchema.plugin(AutoIncrement, {inc_field: 'code'});
 
+tagSchema.statics.tagExists = function tagExists(descr, callback) {
+     var promise = this.model("Tag").where('description').equals(descr).exec();
+     return promise.then(function(doc) {
+        if(doc != null & doc.length > 0) {
+            return true;
+        }else {
+            return false;
+        }
+     });  
+}
+    tagSchema.statics.getTag = function getTag(descr, callback) {
+         var promise = this.model("Tag").where('description').equals(descr).exec();
+         return promise.then(function(doc){
+              if(doc != null & doc.length > 0) {
+                  var result = null;
+                  try {
+                      result = doc[0]._doc;
+                    }catch (err){
+                        console.log(err);
+                    }
+                    return result;
+              } else {
+                  return result;
+              }
+         });
+    }
 
 //Create a model using the schema we created.
 var Tag = mongoose.model('Tag',tagSchema);

@@ -13,8 +13,12 @@ var podcastSchema = new Schema({
     description: String, 
     img_url: String,
     show_url: String,
+    feed_url: String,
+    releaseDate: Date,
+    episode_count: Number,
+    country: String,
     category: [{ type: Schema.Types.ObjectId, ref: 'CategoryType'}],
-    hosts: [{ type: Schema.Types.ObjectId, ref: 'Hosts'}],
+    host: [{ type: Schema.Types.ObjectId, ref: 'Host'}],
     recent_episode_date: Date,
     tags: [{ type: Schema.Types.ObjectId, ref: 'Tag'}] //Reference the Tag/Focus schema
 });
@@ -26,7 +30,7 @@ podcastSchema.plugin(AutoIncrement, {inc_field: 'show_id'});
 podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) { 
     var promise = this.model('Podcast').find({}).exec();
     return promise.then(function(docs){
-        if(docs != null) {
+        if(docs != null  && doc.length > 0) {
             var resultset = [];
             var len = docs.length;
             docs.forEach(function(record){
@@ -34,6 +38,8 @@ podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) {
             });
             console.log(docs);
             return resultset;
+        } else {
+            return new Array();
         }
     });
 };
@@ -43,9 +49,11 @@ podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) {
 podcastSchema.statics.getPodcastByID = function getPodcastByID(id, callback) {
     var promise = this.model('Podcast').where('show_id').equals(id).exec();
     return promise.then(function(doc){
-        if(doc != null) {
+        if(doc != null  && doc.length > 0) {
             var result = doc[0]._doc;
             return result;
+        } else {
+            return new Array();
         }
     });
 };
@@ -54,11 +62,13 @@ podcastSchema.statics.getPodcastByID = function getPodcastByID(id, callback) {
 podcastSchema.statics.getPodcastsByCategory = function getPodcastsByCategory(cat, callback) {
     var promise =  this.model('Podcast').where('category.code').equals(cat);
     return promise.then(function(doc){
-        if(doc != null) {
+        if(doc != null  && doc.length > 0) {
             var result = doc[0]._doc;
             return result;
+        } else {
+            return new Array();
         }
-    })
+    });
 }
 
 //Create a model using the schema we created.
