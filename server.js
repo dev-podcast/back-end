@@ -1,13 +1,14 @@
 var express = require('express');
 var fs = require('fs');
 var app = express();
+var urijs = require('urijs');
 var http = require("http");
 var https = require("https");
 var Promise = require('bluebird');
 var mongoose  = require('mongoose');
 var Audiosearch = require('audiosearch-client-node');
 var Podcast = require("./models/db-models/podcast") //Database model for podcast
-, Tag = require('./models/db-models/tag') //Database model for tag
+, Tag = require('./models/db-models/tag').Tag //Database model for tag
 , PodCategories = require('./models/db-models/categories.js') //Database model for categories
 , Host = require('./models/db-models/host.js')//Database model for podcast hosts.
 
@@ -17,11 +18,14 @@ var Podcast = require("./models/db-models/podcast") //Database model for podcast
 
 
 const request = require('request-promise')  
+
 var AUDIOSEARCH_APP_ID = "d4dad46362e5e54ee74ef0cc027f72a05e81e8cc39529661115e7e78d0998414";
 var AUDIOSEARCH_SECRET = "42aecc8fe642e535e01861e40e38a45e8f97ae616b6c6883a9cafe8bb4f3b80f"; 
 var audiosearch = new Audiosearch(AUDIOSEARCH_APP_ID, AUDIOSEARCH_SECRET);
 
-var base_pod_list_dir = "./base_pod_list"
+
+
+
 
 //Server start
 
@@ -43,36 +47,6 @@ var initializeData = function() {
 
 
 
-function insertBasePodcastList() {
- fs.readdir(base_pod_list_dir, function(err, items) {
-      console.log(items);
-
-      if(err) {
-          onerror(err);
-          return;
-      }
-      items.forEach(function(filename){
-            fs.readFile("./base_pod_list" + "/" + filename, 'utf-8', function(err, content){
-                if(err)
-                    return;
-
-                var data = JSON.parse(content);
-                for(var i = 0; i < data.length; i++){
-                    var pod = new BasePodcast({
-                        title: data[i]['Podcast Title'],
-                        description: data[i].Description
-                     });
-
-                     pod.save(function(err) {
-                         if (err) throw err; 
-                        console.log("Podcast saved successfully.");
-                    });
-                }
-            });
-     });
-  });
-
-}
 
 function insertDefaultPodcastCategories() {
     var cat = new PodCategories.CategoryType();
@@ -95,11 +69,11 @@ function insertDefaultPodcastCategories() {
 }
 
 function insertDefaultTags() {
-    var tag = new Tag.Tag();
+    var tag = new Tag();
     tag.model('Tag').count(function(err, count){
         if(count <= 0){
             for(var i = 0; i < Tag.Tags.length; i++){
-                var tagRecord = new Tag.Tag({
+                var tagRecord = new Tag({
                     description: Tag.Tags[i].description
                 });
 
@@ -120,13 +94,210 @@ initializeData();
 
 
 
+/* 
+var setupListBaseListOfPodcasts  = function() {
+    var podlist = './podlist';
+    fs.readdir(podlist, function(err, items) {
+      console.log(items);
+
+      if(err) {
+          onerror(err);
+          return;
+      }
+      items.forEach(function(filename){
+            fs.readFile(podlist+ "/" + filename, 'utf-8', function(err, content){
+                if(err)
+                    return;
+
+                var data = JSON.parse(content);
+                var propertyList = new Array();
+                var count = 0; 
+                for(var property in data){
+                    if(data.hasOwnProperty(property)){                                
+                        PodCategories.CategoryType.getCategoryByName(property).then(function(result){ 
+                            if(result != null) {
+                                  var cat = data[result.name]; 
+                                   console.log("Property: " + result.name + "items: " + cat.length.toString());
+                                  
+                                  createBasePodcastRecords(cat,result);   
+                            }                                                                                                          
+                        });                                            
+                    }                 
+                }           
+            });
+     });
+  });
+}
+ 
+
+setupListBaseListOfPodcasts();
+
+
+var createBasePodcastRecords = function(data,categorytype) {
+                            if(categorytype != null) {
+                                
+                                 for(var i = 0; i < data.length; i++){                                                           
+                                        var pod = data[i]; 
+
+                                        if(pod != null && pod != undefined){
+
+                                    
+                                        var description = pod["Description"];
+                                        var podcast_site = pod["Website URL"];
+                                        var title = pod["Podcast Title"]; 
+                                        var subscriberUrl = pod["Subscribe URL"].toString();   
+                                        var qs = subscriberUrl.split('/');
+                                        var unformattedID = qs[qs.length-1].split("?");
+                                        var itunes_id = unformattedID[0];
+                                    
+
+
+                                        var pod = new BasePodcast({
+                                            title: title,
+                                            description: description,
+                                            podcast_site: podcast_site,
+                                            itunes_subscriber_url: subscriberUrl, 
+                                            itunes_id: itunes_id,
+                                            category: categorytype
+                                            
+                                        });
+                                        
+                                         
+
+                                         pod.save(function(err) {
+                                            if (err) throw err; 
+                                            console.log("Podcast saved successfully.");
+                                        }); 
+                                        }
+                                    }
+                            }
+}
+
+ */
+
+/*   PodCategories.CategoryType.getCategoryByCode(3).then(function(data){
+        BasePodcast.getBasePodcastsByCategory(data).then(function(result){
+            if(result) {
+                console.log(result);
+            }
+        });
+  }); */
+
+var setupPodcastData = function() {
+    //Get all itunes ids
+    BasePodcast.getAllItunesId().then(function(result){
+        if(result != null && result.length > 0) {
+             var listofIds = result;
+             for(var i = 0; i < listofIds.length; i++){
+                 var itunes_id = listofIds[i];
+
+                setInterval(function() {
+                    buildQueryUrl(itunes_id);
+                }, 5000);
+
+                 //buildQueryUrl(itunes_id);
+
+             }
+        }
+       
+    });
+}
+
+setupPodcastData();
+
+
+var buildQueryUrl = async function(id) {
+     var url  = 'https://itunes.apple.com/lookup/' + id;
+     const options = {
+         method: 'GET', 
+         url: url, 
+         json:true       
+     }
+    request(options).then(async function(response){
+      //  console.log(response);
+      if(response != null && response.resultCount > 0) {
+        var responsePod = response.results[0];
+         var podcast = new Podcast(); 
+        podcast.show_title = responsePod.trackName;
+        podcast.img_url = responsePod.artworkUrl100; 
+        podcast.feed_url = responsePod.feed_url;
+        podcast.episode_count = responsePod.trackCount;
+        podcast.country = responsePod.country; 
+        await BasePodcast.findOne({title: responsePod.trackName}).select('podcast_site').exec(function(err, basepod){
+            if(basepod != null) {
+                podcast.show_url = basepod._doc.podcast_site;
+            }       
+        });
+
+        var genres = responsePod.genres;
+        var listOfGenres = await queryOrInsertTags(genres);
+
+        var host = new Host(); 
+        host.name =  responsePod.artistName; 
+        host.associated_podcast = podcast; 
+
+       /*  host.save(function(err){
+            if(err) throw err;
+            console.log(err);
+        }); */
+
+        var date = new Date(responsePod.releaseDate);
+        podcast.releaseDate = date;
+
+        podcast.host = host;
+
+         podcast.save(function(err){
+             if(err) throw err;
+             console.log("Podcast save!");
+        }); 
+
+      }
+        
+
+       
+     }).catch(function(err){
+            console.log(err);
+     });
+}
+
+var queryOrHost = async function(host) {
+    
+}
+
+var queryOrInsertTags = async function(genres) {
+    var tags = new Array();
+    if(genres.length > 0) {
+         for(var i = 0; i < genres.length; i++){
+                var tag = null;   
+                var exists = await Tag.findOne({description: genres[i].toString()}).exec(); // await Tag.tagExists(genres[0]);                
+                if(exists != null){
+                   Tag.getTag(genres[i]).then(function(result) {
+                       if(result != null) {
+                         tag = result;
+                       }                    
+                   });
+                } else {
+                    tag = new Tag(); 
+                    tag.description = genres[i];
+                    tag.save(function(err){
+                        if(err) throw err;
+                        console.log("Tag saved!");
+                    })
+                }
+                 
+                 tags.push(tag);
+            }
+        }
+        return tags;
+}
+
 
 /******** Begin section for handling server requests**************** */
 
 
 
 
-var server = app.listen(8081, function(){
+var server = app.listen(9000, function(){
     var host = server.address().address;
     var port = server.address().port;
 
@@ -160,60 +331,6 @@ app.get('/api/podcasts/:id', function(req, res) {
     });
 });
 
-
-
-
-/*
-audiosearch.getTastemakers().then(function(results) {
-    //do stuff here
-});
-
-audiosearch.searchShows('Take up Code').then(function(results){
-    //do stuff here;
-    if(result != null && result.length > 0) {
-       var res  = results[0]; //Get the first result out of the list. 
-    }
-  
-});*/
-
-
-
-
-
-// app.get('/test', function(req, res){
-//     res.send(getData());       
-// });
-
-
-// var tag = new Tag({
-//     description: ".NET", 
-//     code: 0
-// });
-
-// tag.save();
-
-
-// var host = new Host({
-//     name: "John"
-// });
-
-// host.save(function(err){
-//    if(err) throw err; 
-//    console.log("Host 1 saved!");
-// });
-
-// var host2 = new Host({
-//     name: "Time"
-// })
-
-// host2.save(function(err){
-//    if(err) throw err; 
-//    console.log("Host 1 saved!");
-// });
-
-// var hostlist  = []
-// hostlist.push(host);
-// hostlist.push(host2);
 
 
 // Podcast.counterReset('show_id',function(err) {
