@@ -9,6 +9,7 @@ var mongoose  = require('mongoose');
 var Audiosearch = require('audiosearch-client-node');
 var Podcast = require("./models/db-models/podcast") //Database model for podcast
 , Tag = require('./models/db-models/tag').Tag //Database model for tag
+, Tags = require('./models/db-models/tag').Tags
 , PodCategories = require('./models/db-models/categories.js') //Database model for categories
 , Host = require('./models/db-models/host.js')//Database model for podcast hosts.
 
@@ -40,7 +41,7 @@ mongoose.connect(url); //Connect to the running mongoDB instance
 
 var initializeData = function() {
          
-         insertDefaultPodcastCategories(); //Method that updates the Categories collection/table with initial data if there is none. 
+        // insertDefaultPodcastCategories(); //Method that updates the Categories collection/table with initial data if there is none. 
          insertDefaultTags(); //Method that updates the Tags collection/table with initial data if there is none. 
         // insertBasePodcastList(); //Method that updates the Base Podcast collection/table with initial data if there is none. 
 }
@@ -69,14 +70,16 @@ function insertDefaultPodcastCategories() {
 }
 
 function insertDefaultTags() {
-    var tag = new Tag();
-    tag.model('Tag').count(function(err, count){
+    
+    Tag.count(async function(err, count){
         if(count <= 0){
-            for(var i = 0; i < Tag.Tags.length; i++){
-                var tagRecord = new Tag({
-                    description: Tag.Tags[i].description
-                });
-
+            for(var i = 0; i < Tags.length; i++){
+                var exists = await Tag.findOne({description: Tags[i].description.toString()}).exec();
+                if(!exists){
+                     var tagRecord = new Tag({
+                        description: Tags[i].description
+                     });
+                }
                 tagRecord.save(function(err){
                     console.log("Tag: " + tagRecord.description + " was added!");
                 });
@@ -94,106 +97,18 @@ initializeData();
 
 
 
-/* 
-var setupListBaseListOfPodcasts  = function() {
-    var podlist = './podlist';
-    fs.readdir(podlist, function(err, items) {
-      console.log(items);
 
-      if(err) {
-          onerror(err);
-          return;
-      }
-      items.forEach(function(filename){
-            fs.readFile(podlist+ "/" + filename, 'utf-8', function(err, content){
-                if(err)
-                    return;
-
-                var data = JSON.parse(content);
-                var propertyList = new Array();
-                var count = 0; 
-                for(var property in data){
-                    if(data.hasOwnProperty(property)){                                
-                        PodCategories.CategoryType.getCategoryByName(property).then(function(result){ 
-                            if(result != null) {
-                                  var cat = data[result.name]; 
-                                   console.log("Property: " + result.name + "items: " + cat.length.toString());
-                                  
-                                  createBasePodcastRecords(cat,result);   
-                            }                                                                                                          
-                        });                                            
-                    }                 
-                }           
-            });
-     });
-  });
-}
- 
-
-setupListBaseListOfPodcasts();
-
-
-var createBasePodcastRecords = function(data,categorytype) {
-                            if(categorytype != null) {
-                                
-                                 for(var i = 0; i < data.length; i++){                                                           
-                                        var pod = data[i]; 
-
-                                        if(pod != null && pod != undefined){
-
-                                    
-                                        var description = pod["Description"];
-                                        var podcast_site = pod["Website URL"];
-                                        var title = pod["Podcast Title"]; 
-                                        var subscriberUrl = pod["Subscribe URL"].toString();   
-                                        var qs = subscriberUrl.split('/');
-                                        var unformattedID = qs[qs.length-1].split("?");
-                                        var itunes_id = unformattedID[0];
-                                    
-
-
-                                        var pod = new BasePodcast({
-                                            title: title,
-                                            description: description,
-                                            podcast_site: podcast_site,
-                                            itunes_subscriber_url: subscriberUrl, 
-                                            itunes_id: itunes_id,
-                                            category: categorytype
-                                            
-                                        });
-                                        
-                                         
-
-                                         pod.save(function(err) {
-                                            if (err) throw err; 
-                                            console.log("Podcast saved successfully.");
-                                        }); 
-                                        }
-                                    }
-                            }
-}
-
- */
-
-/*   PodCategories.CategoryType.getCategoryByCode(3).then(function(data){
-        BasePodcast.getBasePodcastsByCategory(data).then(function(result){
-            if(result) {
-                console.log(result);
-            }
-        });
-  }); */
-
-var setupPodcastData = function() {
+var updatePodcastData = function() {
     //Get all itunes ids
-    BasePodcast.getAllItunesId().then(function(result){
+    BasePodcast.getAllItunesId().then(async function(result){
         if(result != null && result.length > 0) {
              var listofIds = result;
              for(var i = 0; i < listofIds.length; i++){
                  var itunes_id = listofIds[i];
 
-                setInterval(function() {
-                    buildQueryUrl(itunes_id);
-                }, 5000);
+               // setInterval(function() {
+                   await buildItunesQueryUrl(itunes_id);
+                //}, 5000);
 
                  //buildQueryUrl(itunes_id);
 
@@ -203,10 +118,10 @@ var setupPodcastData = function() {
     });
 }
 
-setupPodcastData();
+updatePodcastData();
 
 
-var buildQueryUrl = async function(id) {
+var buildItunesQueryUrl = async function(id) {
      var url  = 'https://itunes.apple.com/lookup/' + id;
      const options = {
          method: 'GET', 
@@ -214,47 +129,55 @@ var buildQueryUrl = async function(id) {
          json:true       
      }
     request(options).then(async function(response){
-      //  console.log(response);
       if(response != null && response.resultCount > 0) {
         var responsePod = response.results[0];
-         var podcast = new Podcast(); 
-        podcast.show_title = responsePod.trackName;
-        podcast.img_url = responsePod.artworkUrl100; 
-        podcast.feed_url = responsePod.feed_url;
-        podcast.episode_count = responsePod.trackCount;
-        podcast.country = responsePod.country; 
-        await BasePodcast.findOne({title: responsePod.trackName}).select('podcast_site').exec(function(err, basepod){
-            if(basepod != null) {
-                podcast.show_url = basepod._doc.podcast_site;
-            }       
-        });
+        var exists = await Podcast.findOne({show_title: responsePod.trackName.toString()}).exec();
+        if(!exists) {
+            var podcast = new Podcast();
+            
+            podcast.show_title = responsePod.trackName;
+            podcast.img_url = responsePod.artworkUrl100; 
+            podcast.feed_url = responsePod.feed_url;
+            podcast.episode_count = responsePod.trackCount;
+            podcast.country = responsePod.country; 
+            await BasePodcast.findOne({title: responsePod.trackName}).select('podcast_site category').exec(function(err, basepod){
+                if(basepod != null) {
+                    podcast.show_url = basepod._doc.podcast_site;
+                    podcast.category = basepod._doc.category;
+                }       
+            });
 
-        var genres = responsePod.genres;
-        var listOfGenres = await queryOrInsertTags(genres);
+            var genres = responsePod.genres;
+            var listOfTags = await queryOrInsertTags(genres);
 
-        var host = new Host(); 
-        host.name =  responsePod.artistName; 
-        host.associated_podcast = podcast; 
-
-       /*  host.save(function(err){
-            if(err) throw err;
-            console.log(err);
-        }); */
-
-        var date = new Date(responsePod.releaseDate);
-        podcast.releaseDate = date;
-
-        podcast.host = host;
-
-         podcast.save(function(err){
+            podcast.tags = listOfTags;
+            
+            //TODO: Need to clean up some of the host names coming out Itunes. 
+            var host = new Host(); 
+            host.name =  responsePod.artistName; 
+           // host.associated_podcast = podcast; 
+            
+           host.save(function(err){
              if(err) throw err;
-             console.log("Podcast save!");
-        }); 
+           });
+           // console.log(host.name);
+            
+            var date =  Date.parse(responsePod.releaseDate);     
+            if(isNaN(date) == false) {
+                var d = new Date(responsePod.releaseDate);
+                podcast.releaseDate = d;
+            } else {
+                date = null;
+            }
+            
+            podcast.host = host;
 
-      }
-        
-
-       
+            podcast.save(function(err){
+                if(err) throw err;
+                console.log("Podcast: " + podcast.show_title + " saved!");
+            }); 
+        }
+      }    
      }).catch(function(err){
             console.log(err);
      });
@@ -269,20 +192,17 @@ var queryOrInsertTags = async function(genres) {
     if(genres.length > 0) {
          for(var i = 0; i < genres.length; i++){
                 var tag = null;   
-                var exists = await Tag.findOne({description: genres[i].toString()}).exec(); // await Tag.tagExists(genres[0]);                
-                if(exists != null){
-                   Tag.getTag(genres[i]).then(function(result) {
-                       if(result != null) {
-                         tag = result;
-                       }                    
-                   });
-                } else {
+                     var doc = await Tag.findOne({description: genres[i].toString()}).exec(); // await Tag.tagExists(genres[0]);                
+                if(doc == null || doc._doc == null){
+                 
                     tag = new Tag(); 
                     tag.description = genres[i];
                     tag.save(function(err){
                         if(err) throw err;
-                        console.log("Tag saved!");
+                       // console.log("Tag saved!");
                     })
+                } else {
+                    tag = doc._doc;
                 }
                  
                  tags.push(tag);
@@ -297,7 +217,7 @@ var queryOrInsertTags = async function(genres) {
 
 
 
-var server = app.listen(9000, function(){
+    var server = app.listen(9000, function(){
     var host = server.address().address;
     var port = server.address().port;
 
@@ -306,101 +226,46 @@ var server = app.listen(9000, function(){
 
 //Get all podcasts
 app.get('/api/podcasts', function (req, res) { //Main page
-        Podcast.getAllPodcasts().then(function(result) {
-            if(result != null && result.length > 0){
-                console.log(result);
-                res.end(JSON.stringify(result));
-            }   
+        Podcast.getAllPodcasts().then(function(result) {        
+                res.end(JSON.stringify(result)); 
         });  
 });
 
+//Get all podcasts that contain the specified tag
+app.get('/api/podcasts/tag/:tag',function(req,res) {
+    var tag = req.params.tag;
+    Podcast.getAllPodcastsByTag(tag).then(function(result) {
+        res.end(JSON.stringify(result));
+    });
+});
+
 //All podcasts for a specific category
-app.get('/api/category/:type', function(req, res) {
-    var cat = req.param('type');
+app.get('/api/podcasts/category/:type', function(req, res) {
+    var cat = req.params.type;
     Podcast.getPodcastsByCategory(cat).then(function(result) {
         res.end(JSON.stringify(result));
     });
 });
 
+//Get all podcast categories. 
+app.get('/api/category', function(req, res){
+    CategoryType.getAllCategories().then(function(result){
+        res.end(JSON.stringify(result));
+    })
+});
+
 
 //Get the podcast with the specified ID 
 app.get('/api/podcasts/:id', function(req, res) {
-    var id = req.param('id');
+    var id = req.params.id;
     Podcast.getPodcastByID(id).then(function(result) {
         res.end(JSON.stringify(result));
     });
 });
 
-
-
-// Podcast.counterReset('show_id',function(err) {
-//     console.log(err);
-// });
-// //create a new podcast called Take up Code
-// var pod = new Podcast({
-//     show_title: 'Take up Code', 
-//     img_url: null, 
-//     description: "Easy way to learn how to code.", 
-//     hosts: hostlist,
-//     recent_episode_date: '04/08/2017'
-// });
-
-// pod.save(function(err){
-//     if(err) throw err;
-//     console.log("Podcast save!");
-// });
-
-
-// function test() {
-   
-//    Podcast.getAllPodcasts().then(function(result) {
-//         if(result != null && result.length > 0){
-//             console.log(result);
-//         }   
-//     });
-
-//    Podcast.getPodcastByID(1, function(req, res){
-//         console.log(req);
-//         console.log(res);
-//     }).then(function(result){
-//         if(result != null) {
-//             var pod = result[0]._doc;
-//         }
-//         console.log(result);
-//     });   
-// }
-
-
-// test();
-
-
-/*
-
-
-function buildQueryUrl(data) {
-     var url  = 'https://itunes.apple.com/search'
-     const options = {
-         method: 'GET', 
-         url: url, 
-         json:true,
-         qs: {
-             term: 'jack johnson', 
-             entity: 'musicVideo'
-         }
-     }
-    console.log(options);
-    return options;
-}
-
-
-function getData() {
-     request(buildQueryUrl()).then(function(response){
-        console.log(response);
-     }).catch(function(err){
-            console.log(err);
-     });
- }
-
-getData();
-
-*/
+app.get('/api/podcasts/search/:name', function(req,res){
+    var name = req.params.name;
+    Podcast.getPodcastsByName(name).then(function(result){
+        res.end(JSON.stringify(result));
+    });
+});

@@ -30,7 +30,7 @@ podcastSchema.plugin(AutoIncrement, {inc_field: 'show_id'});
 podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) { 
     var promise = this.model('Podcast').find({}).exec();
     return promise.then(function(docs){
-        if(docs != null  && doc.length > 0) {
+        if(docs != null  && docs.length > 0) {
             var resultset = [];
             var len = docs.length;
             docs.forEach(function(record){
@@ -57,6 +57,40 @@ podcastSchema.statics.getPodcastByID = function getPodcastByID(id, callback) {
         }
     });
 };
+
+podcastSchema.statics.getPodcastsByName = function getPodcastByName(name, callback) {
+    var promise = this.model('Podcast').find({"show_title":{"$regex": name,"$options": "i"}}).exec();
+    return promise.then(function(docs) {
+        if(docs != null  && docs.length > 0) {
+            var resultset = [];
+            var len = docs.length;
+            docs.forEach(function(record){
+                resultset.push(record._doc);
+            });
+            console.log(docs);
+            return resultset;
+        } else {
+            return new Array();
+        }
+    });
+}
+
+podcastSchema.statics.getAllPodcastsByTag = function getAllPodcastsByTag(tag, callback) {
+    var promise = the.model('Podcast').where('tag.description').equals(tag);
+    return promise.then(function(docs){
+         if(docs != null  && docs.length > 0) {
+            var resultset = [];
+            var len = docs.length;
+            docs.forEach(function(record){
+                resultset.push(record._doc);
+            });
+            console.log(docs);
+            return resultset;
+        } else {
+            return new Array();
+        }
+    });
+}
 
 //Static method that gets the podcasts with the specified category code
 podcastSchema.statics.getPodcastsByCategory = function getPodcastsByCategory(cat, callback) {
