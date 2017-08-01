@@ -7,16 +7,15 @@ var https = require("https");
 var Promise = require('bluebird');
 var mongoose  = require('mongoose');
 var Audiosearch = require('audiosearch-client-node');
-var Podcast = require("./models/db-models/podcast") //Database model for podcast
-, Tag = require('./models/db-models/tag').Tag //Database model for tag
-, Tags = require('./models/db-models/tag').Tags
-, PodCategories = require('./models/db-models/categories.js') //Database model for categories
-, Host = require('./models/db-models/host.js')//Database model for podcast hosts.
-
-, Itunes = require("./models/ext-models/itunes_podcast.js") // External model for itunes podcast format
-, ItunesQueryParams = require("./models/ext-models/itunes_query_params.js") //Eternal model for use when querying the Itunes API
-,BasePodcast = require("./models/ext-models/base_pod.js");//Base podcast model for the inital podcast names that have acquired.
-
+var Podcast = require("./models/db-models/podcast"), //Database model for podcast
+  Tag = require("./models/db-models/tag").Tag, //Database model for tag
+  Tags = require("./models/db-models/tag").Tags,
+  PodCategories = require("./models/db-models/categories.js"), //Database model for categories
+  Host = require("./models/db-models/host.js"), //Database model for podcast hosts.
+  ItunesPodcastUpdater = require('./services/itunes_updater_service.js'),
+  Itunes = require("./models/ext-models/itunes_podcast.js"), // External model for itunes podcast format
+  ItunesQueryParams = require("./models/ext-models/itunes_query_params.js"), //Eternal model for use when querying the Itunes API
+  BasePodcast = require("./models/ext-models/base_pod.js");//Base podcast model for the inital podcast names that have acquired.
 
 const request = require('request-promise')  
 
@@ -37,10 +36,13 @@ var url = 'mongodb://localhost:27017/podcasts';
 mongoose.Promise = Promise; //Set the promise object for mongoose. 
 mongoose.connect(url); //Connect to the running mongoDB instance
 
+let updater = new ItunesPodcastUpdater();
+console.log(updater.podcasts);
 }
 
 var initializeData = function() {
          
+    
         // insertDefaultPodcastCategories(); //Method that updates the Categories collection/table with initial data if there is none. 
          insertDefaultTags(); //Method that updates the Tags collection/table with initial data if there is none. 
         // insertBasePodcastList(); //Method that updates the Base Podcast collection/table with initial data if there is none. 
@@ -174,7 +176,7 @@ var buildItunesQueryUrl = async function(id) {
 
             podcast.save(function(err){
                 if(err) throw err;
-                console.log("Podcast: " + podcast.show_title + " saved!");
+               // console.log("Podcast: " + podcast.show_title + " saved!");
             }); 
         }
       }    
