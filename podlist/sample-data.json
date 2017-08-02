@@ -1,0 +1,47 @@
+[
+    {
+        "category": [
+            "5904d7906c234509e83305ad"
+        ],
+        "host": [
+            "597fc6345383103ca8f24d00"
+        ],
+        "tags": [
+            "597f9ad8efc0943a78c88df3",
+            "597f9ad8efc0943a78c88df4",
+            "597f9ad8efc0943a78c88df7",
+            "597f9ad8efc0943a78c88e13",
+            "597f9ad8efc0943a78c88e17"
+        ],
+        "__v": 0,
+        "show_title": "Speaking in Tech",
+        "img_url": "http://is5.mzstatic.com/image/thumb/Music62/v4/40/2c/a8/402ca8df-6d70-a78b-fa08-17bd0174d07f/source/100x100bb.jpg",
+        "episode_count": 50,
+        "country": "USA",
+        "show_url": "http://speakingintech.com/",
+        "releaseDate": "2017-07-26T02:11:00.000Z",
+        "show_id": 18645,
+        "_id": "597fc6345383103ca8f24cff"
+    },
+    {
+        "category": [
+            "5904d7906c234509e83305a0"
+        ],
+        "host": [
+            "597fc6345383103ca8f24d05"
+        ],
+        "tags": [
+            "597f9ad8efc0943a78c88dfd",
+            "597f9ad8efc0943a78c88df4",
+            "597f9ad8efc0943a78c88df7"
+        ],
+        "__v": 0,
+        "show_title": "Build Phase",
+        "img_url": "http://is1.mzstatic.com/image/thumb/Music71/v4/99/9c/a3/999ca36f-377d-34c1-b361-32fa5b43bb20/source/100x100bb.jpg",
+        "episode_count": 119,
+        "country": "USA",
+        "show_url": "http://buildphase.fm/",
+        "releaseDate": "2017-07-07T15:30:00.000Z",
+        "show_id": 18646,
+        "_id": "597fc6345383103ca8f24d02"
+    }]

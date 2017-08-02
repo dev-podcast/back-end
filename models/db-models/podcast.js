@@ -105,6 +105,13 @@ podcastSchema.statics.getPodcastsByCategory = function getPodcastsByCategory(cat
     });
 }
 
+podcastSchema.statics.getPodcastCount = function getPodcastCount(callback) {
+    var promise = this.model('Podcast').count({}).exec();
+    return promise.then(function(count) {
+        return count;
+    });
+}
+
 //Create a model using the schema we created.
 var Podcast = mongoose.model('Podcast', podcastSchema);
 

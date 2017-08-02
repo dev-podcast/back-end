@@ -12,7 +12,7 @@ var Podcast = require("./models/db-models/podcast"), //Database model for podcas
   Tags = require("./models/db-models/tag").Tags,
   PodCategories = require("./models/db-models/categories.js"), //Database model for categories
   Host = require("./models/db-models/host.js"), //Database model for podcast hosts.
-  ItunesPodcastUpdater = require('./services/itunes_updater_service.js'),
+ // ItunesPodcastUpdater = require('./services/itunes_updater_service.js'),
   Itunes = require("./models/ext-models/itunes_podcast.js"), // External model for itunes podcast format
   ItunesQueryParams = require("./models/ext-models/itunes_query_params.js"), //Eternal model for use when querying the Itunes API
   BasePodcast = require("./models/ext-models/base_pod.js");//Base podcast model for the inital podcast names that have acquired.
@@ -36,8 +36,12 @@ var url = 'mongodb://localhost:27017/podcasts';
 mongoose.Promise = Promise; //Set the promise object for mongoose. 
 mongoose.connect(url); //Connect to the running mongoDB instance
 
-let updater = new ItunesPodcastUpdater();
-console.log(updater.podcasts);
+
+
+
+
+//let updater = new ItunesPodcastUpdater();
+//console.log(updater.podcasts);
 }
 
 var initializeData = function() {
@@ -95,14 +99,14 @@ function insertDefaultTags() {
 
 
 initializeDB();
-initializeData();
+//initializeData();
 
 
 
 
 var updatePodcastData = function() {
     //Get all itunes ids
-    BasePodcast.getAllItunesId().then(async function(result){
+    BasePodcast.getAllItunesIds().then(async function(result){
         if(result != null && result.length > 0) {
              var listofIds = result;
              for(var i = 0; i < listofIds.length; i++){
@@ -120,7 +124,7 @@ var updatePodcastData = function() {
     });
 }
 
-updatePodcastData();
+////updatePodcastData();
 
 
 var buildItunesQueryUrl = async function(id) {

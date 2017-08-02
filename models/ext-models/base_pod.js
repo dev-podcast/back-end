@@ -27,7 +27,7 @@ basePodSchema.statics.getAllBasePodcasts = function getAllBasePodcasts(callback)
     })
 }
 
-basePodSchema.statics.getAllItunesId = function getAllItunesId(callback) {
+basePodSchema.statics.getAllItunesIds = function getAllItunesId(callback) {
     var promise = this.model('BasePodcast').find({}).exec();
     return promise.then(function(docs) {
         if(docs != null && docs.length > 0) {
