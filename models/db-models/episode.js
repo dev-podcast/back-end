@@ -13,7 +13,8 @@ var episodeSchema = new Schema({
   audio_url: String,
   audio_type: String,
   audio_duration: String,
-  date_created: Date,
+  published_date: Date,
+  created_date: Date,
   image_url: String,   
   source_url: String,
 
