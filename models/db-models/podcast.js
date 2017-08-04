@@ -47,7 +47,7 @@ podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) {
 
 //Static method that gets a podcast with the specified show_id
 podcastSchema.statics.getPodcastByID = function getPodcastByID(id, callback) {
-    var promise = this.model('Podcast').where('show_id').equals(id).exec();
+    var promise = this.model('Podcast').where('_id').equals(id).exec();
     return promise.then(function(doc){
         if(doc != null  && doc.length > 0) {
             var result = doc[0]._doc;

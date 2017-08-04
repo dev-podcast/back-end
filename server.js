@@ -19,7 +19,7 @@ var Podcast = require("./models/db-models/podcast"), //Database model for podcas
   ItunesQueryParams = require("./models/ext-models/itunes_query_params.js"), //Eternal model for use when querying the Itunes API
   BasePodcast = require("./models/ext-models/base_pod.js"); //Base podcast model for the inital podcast names that have acquired.
 
-var mp3Duration = require("mp3-duration");
+//var mp3Duration = require("mp3-duration");
 const request = require("request-promise");
 
 var AUDIOSEARCH_APP_ID =
@@ -78,7 +78,7 @@ const insertDefaultPodcastCategories = function() {
 }
 
 const insertDefaultTags = function() {
-  Tag.count(async function(err, count) {
+  Tag.count({}, async (err, count) => {
     if (count <= 0) {
       for (var i = 0; i < Tags.length; i++) {
         var exists = await Tag.findOne({
@@ -95,11 +95,13 @@ const insertDefaultTags = function() {
       }
     }
     return;
+  }).catch((err)=> {
+    console.log(err);
   });
 }
 
 initializeDB();
-initializeData();
+//initializeData();
 
 
 
@@ -471,19 +473,19 @@ app.get("/api/podcasts/search/:name", function(req, res) {
   });
 });
 
-//Get the episodes with the specified ID
+//Get the episode with the specified ID
 app.get("/api/episodes/:id", function(req, res) {
   var id = req.params.id;
-  Podcast.getEpisodesByID(id).then(function(result) {
+  Episode.getEpisodesByID(id).then(function(result) {
     res.end(JSON.stringify(result));
   });
 });
 
-//Get all podcasts
+//Get all episodes for the specified podcast
 app.get("/api/podcasts/episodes/:show_id", function(req, res) {
   //Main page
   var id = req.params.show_id;
-  Podcast.getAllEpisodes()
+  Episode.getAllEpisodes()
     .then(result => {
       res.end(JSON.stringify(result));
     })
@@ -492,11 +494,11 @@ app.get("/api/podcasts/episodes/:show_id", function(req, res) {
     });
 });
 
-/*
-app.get("/api/episodes/tag/:tag", function(req, res) {
+
+app.get("/api/podcast/episodes/tag/:tag", function(req, res) {
   var tag = req.params.tag;
-  Podcast.getAllEpisodesByTag(tag).then(function(result) {
+  Episode.getAllEpisodesByTag(tag).then(function(result) {
     res.end(JSON.stringify(result));
   });
 });
- */
+ 
