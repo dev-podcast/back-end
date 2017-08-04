@@ -14,9 +14,10 @@ var podcastSchema = new Schema({
     img_url: String,
     show_url: String,
     feed_url: String,
-    releaseDate: Date,
+    pod_release_date: Date,
     episode_count: Number,
     country: String,
+    created_date: Date,
     category: [{ type: Schema.Types.ObjectId, ref: 'CategoryType'}],
     host: [{ type: Schema.Types.ObjectId, ref: 'Host'}],
     recent_episode_date: Date,
@@ -47,7 +48,7 @@ podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) {
 
 //Static method that gets a podcast with the specified show_id
 podcastSchema.statics.getPodcastByID = function getPodcastByID(id, callback) {
-    var promise = this.model('Podcast').where('show_id').equals(id).exec();
+    var promise = this.model('Podcast').where('_id').equals(id).exec();
     return promise.then(function(doc){
         if(doc != null  && doc.length > 0) {
             var result = doc[0]._doc;
@@ -76,7 +77,7 @@ podcastSchema.statics.getPodcastsByName = function getPodcastByName(name, callba
 }
 
 podcastSchema.statics.getAllPodcastsByTag = function getAllPodcastsByTag(tag, callback) {
-    var promise = the.model('Podcast').where('tag.description').equals(tag);
+    var promise = this.model('Podcast').where('tag.description').equals(tag);
     return promise.then(function(docs){
          if(docs != null  && docs.length > 0) {
             var resultset = [];

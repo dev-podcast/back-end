@@ -13,7 +13,8 @@ var episodeSchema = new Schema({
   audio_url: String,
   audio_type: String,
   audio_duration: String,
-  date_created: Date,
+  published_date: Date,
+  created_date: Date,
   image_url: String,   
   source_url: String,
 
@@ -28,7 +29,7 @@ episodeSchema.statics.getAllEpisodes = function getAllEpisodes(
   show_id,
   callback
 ) {
-  var promise = this.model("Episodes").where("show.show_id").equals(show_id).exec();
+  var promise = this.model("Episode").where("show.show_id").equals(show_id).exec();
   return promise.then(function(docs) {
     if (docs != null && docs.length > 0) {
       var resultset = [];
@@ -47,7 +48,7 @@ episodeSchema.statics.getAllEpisodes = function getAllEpisodes(
 
 //Static method that gets a podcast with the specified show_id
 episodeSchema.statics.getEpisodesByID = function getEpisodesByID(id, callback) {
-  var promise = this.model("Episodes").where("ep_id").equals(id).exec();
+  var promise = this.model("Episode").where("_id").equals(id).exec();
   return promise.then(function(doc) {
     if (doc != null && doc.length > 0) {
       var result = doc[0]._doc;
@@ -63,7 +64,7 @@ episodeSchema.statics.getAllEpisodesByTag = function getAllEpisodesByTag(
   tag,
   callback
 ) {
-  var promise = the.model("Episodes").where("tag.description").equals(tag);
+  var promise = the.model("Episode").where("tag.description").equals(tag);
   return promise.then(function(docs) {
     if (docs != null && docs.length > 0) {
       var resultset = [];

@@ -19,7 +19,7 @@ var Podcast = require("./models/db-models/podcast"), //Database model for podcas
   ItunesQueryParams = require("./models/ext-models/itunes_query_params.js"), //Eternal model for use when querying the Itunes API
   BasePodcast = require("./models/ext-models/base_pod.js"); //Base podcast model for the inital podcast names that have acquired.
 
-var mp3Duration = require("mp3-duration");
+//var mp3Duration = require("mp3-duration");
 const request = require("request-promise");
 
 var AUDIOSEARCH_APP_ID =
@@ -30,14 +30,26 @@ var audiosearch = new Audiosearch(AUDIOSEARCH_APP_ID, AUDIOSEARCH_SECRET);
 
 //Server start
 
-const initializeDB = function() {
+const initializeDB = async () => {
   // Connection URL to the podcast database
   var localurl = "mongodb://localhost:27017/podcasts";
   var mlabUrl = "mongodb://admin:thisiscs50@ds129143.mlab.com:29143/dev-podcasts";
-  mongoose.Promise = Promise; //Set the promise object for mongoose.
-  mongoose.connect(mlabUrl); //Connect to the running mongoDB instance
+  var options = {server: {socketOptions: {keepAlive: 300000, connectTimeoutMS: 30000}},
+        replset: {socketOptions: {keepAlive: 300000, connectTimeoutMS: 30000}}};
 
- /*  Episode.counterReset('ep_id',function(err) {
+
+  mongoose.Promise = Promise; //Set the promise object for mongoose.
+  mongoose.connect(mlabUrl,options); //Connect to the running mongoDB instance
+  var conn = mongoose.connection;
+
+  conn.on('error',console.error.bind(console,'connection error:'));
+
+  await conn.once('open', function() {
+      console.log("MongoDB connection established!");
+  });
+    
+  
+  /*   Episode.counterReset('ep_id',function(err) {
       console.log(err);
   });
 
@@ -49,7 +61,7 @@ const initializeDB = function() {
   
   Podcast.counterReset("show_id", function(err) {
     console.log(err);
-  }); */
+  });   */
 };
 
 const initializeData = function() {
@@ -78,7 +90,7 @@ const insertDefaultPodcastCategories = function() {
 }
 
 const insertDefaultTags = function() {
-  Tag.count(async function(err, count) {
+  Tag.count({}, async (err, count) => {
     if (count <= 0) {
       for (var i = 0; i < Tags.length; i++) {
         var exists = await Tag.findOne({
@@ -95,11 +107,13 @@ const insertDefaultTags = function() {
       }
     }
     return;
+  }).catch((err)=> {
+    console.log(err);
   });
 }
 
 initializeDB();
-initializeData();
+//initializeData();
 
 
 
@@ -141,7 +155,7 @@ const updatePodcastData = async function() {
 };
 
 //updatePodcastData();
-//getRSSDataForPodcasts();
+getRSSDataForPodcasts();
 
 const buildItunesQueryUrl = async function(id) {
   var url = "https://itunes.apple.com/lookup/" + id;
@@ -159,7 +173,9 @@ const buildItunesQueryUrl = async function(id) {
         }).exec();
         if (!exists) {
           var podcast = new Podcast();
-
+          
+        var currentdate = new Date(Date.now()).toLocaleString();
+          podcast.created_date = currentdate;
           podcast.show_title = responsePod.trackName;
           podcast.img_url = responsePod.artworkUrl100;
           podcast.feed_url = responsePod.feedUrl;
@@ -192,7 +208,7 @@ const buildItunesQueryUrl = async function(id) {
           var date = Date.parse(responsePod.releaseDate);
           if (isNaN(date) == false) {
             var d = new Date(responsePod.releaseDate);
-            podcast.releaseDate = d;
+            podcast.pod_release_date = d;
           } else {
             date = null;
           }
@@ -258,6 +274,8 @@ const getEpisodeData = async function(rsslink, podcast) {
                     }).exec();
                     if (!existingEp) {
                       var episode = new Episode();
+                      var currentdate = new Date(Date.now()).toLocaleString();
+                      episode.created_date = currentdate;
                       episode.title = ep.title[0];
 
                       if (ep.enclosure == undefined) {
@@ -276,7 +294,8 @@ const getEpisodeData = async function(rsslink, podcast) {
                         episode.source_url = ep.link[0];
                       }
 
-                      episode.date_created = ep.pubDate[0];
+                      episode.published_date = ep.pubDate[0];
+                     // episode.created_date  
                       episode.image_url = null; // ep["itunes:image"][0].length > 0 ? ep["itunes:image"][0].$.href : null;
 
                       episode.show = podcast;
@@ -471,19 +490,19 @@ app.get("/api/podcasts/search/:name", function(req, res) {
   });
 });
 
-//Get the episodes with the specified ID
+//Get the episode with the specified ID
 app.get("/api/episodes/:id", function(req, res) {
   var id = req.params.id;
-  Podcast.getEpisodesByID(id).then(function(result) {
+  Episode.getEpisodesByID(id).then(function(result) {
     res.end(JSON.stringify(result));
   });
 });
 
-//Get all podcasts
+//Get all episodes for the specified podcast
 app.get("/api/podcasts/episodes/:show_id", function(req, res) {
   //Main page
   var id = req.params.show_id;
-  Podcast.getAllEpisodes()
+  Episode.getAllEpisodes()
     .then(result => {
       res.end(JSON.stringify(result));
     })
@@ -492,11 +511,11 @@ app.get("/api/podcasts/episodes/:show_id", function(req, res) {
     });
 });
 
-/*
-app.get("/api/episodes/tag/:tag", function(req, res) {
+
+app.get("/api/podcast/episodes/tag/:tag", function(req, res) {
   var tag = req.params.tag;
-  Podcast.getAllEpisodesByTag(tag).then(function(result) {
+  Episode.getAllEpisodesByTag(tag).then(function(result) {
     res.end(JSON.stringify(result));
   });
 });
- */
+ 
