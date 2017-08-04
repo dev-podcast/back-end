@@ -1,0 +1,105 @@
+{
+	"title" : ["Using Azure Scheduled Events to Prepare for VM Maintenance"],
+	"description" : ["<p>Eric Radzikowski joins Scott Hanselman on Azure Friday to discuss how developers can increase application availability by using <a href=\"https://docs.microsoft.com/en-us/azure/virtual-machines/virtual-machines-scheduled-events\">Azure Scheduled Events</a> to prepare for virtual machine maintenance.</p><p><a class=\"twitter-follow-button\" href=\"http://twitter.com/shanselman\" target=\"_blank\">Follow @SHanselman</a></p><p><a class=\"twitter-follow-button\" href=\"http://twitter.com/azurefriday\" target=\"_blank\">Follow @AzureFriday</a></p><p><a class=\"twitter-follow-button\" href=\"http://twitter.com/ericradzikowski\" target=\"_blank\">Follow @EricRadzikowski</a></p> <img src=\"http://m.webtrends.com/dcs1wotjh10000w0irc493s0e_6x1g/njs.gif?dcssip=channel9.msdn.com&dcsuri=http://s.ch9.ms/Shows/Azure-Friday/feed/mp4high&WT.dl=0&WT.entryid=Entry:RSSView:114d3244ae8f4ef2aef6a7b3011533a4\">"],
+	"comments" : ["http://channel9.msdn.com/Shows/Azure-Friday/Using-Azure-Scheduled-Events-to-Prepare-for-VM-Maintenance"],
+	"itunes:summary" : ["Eric Radzikowski joins Scott Hanselman on Azure Friday to discuss how developers can increase application availability by using Azure Scheduled Events to prepare for virtual machine maintenance. Follow @SHanselman Follow @AzureFriday Follow @EricRadzikowski "],
+	"itunes:duration" : ["771"],
+	"link" : ["http://channel9.msdn.com/Shows/Azure-Friday/Using-Azure-Scheduled-Events-to-Prepare-for-VM-Maintenance"],
+	"pubDate" : ["Thu, 27 Jul 2017 21:00:00 GMT"],
+	"guid" : [{
+			"_" : "http://channel9.msdn.com/Shows/Azure-Friday/Using-Azure-Scheduled-Events-to-Prepare-for-VM-Maintenance",
+			"$" : {
+				"isPermaLink" : "false"
+			}
+		}
+	],
+	"media:thumbnail" : [{
+			"$" : {
+				"url" : "https://sec.ch9.ms/ch9/1b11/f44de0bb-caf7-42c8-8a7b-9cc3aae71b11/AzureFridayEricRadzikowskiVMScheduledEvents_100.jpg",
+				"height" : "56",
+				"width" : "100"
+			}
+		}, {
+			"$" : {
+				"url" : "https://sec.ch9.ms/ch9/1b11/f44de0bb-caf7-42c8-8a7b-9cc3aae71b11/AzureFridayEricRadzikowskiVMScheduledEvents_220.jpg",
+				"height" : "123",
+				"width" : "220"
+			}
+		}, {
+			"$" : {
+				"url" : "https://sec.ch9.ms/ch9/1b11/f44de0bb-caf7-42c8-8a7b-9cc3aae71b11/AzureFridayEricRadzikowskiVMScheduledEvents_512.jpg",
+				"height" : "288",
+				"width" : "512"
+			}
+		}, {
+			"$" : {
+				"url" : "https://sec.ch9.ms/ch9/1b11/f44de0bb-caf7-42c8-8a7b-9cc3aae71b11/AzureFridayEricRadzikowskiVMScheduledEvents_960.jpg",
+				"height" : "540",
+				"width" : "960"
+			}
+		}
+	],
+	"media:group" : [{
+			"media:content" : [{
+					"$" : {
+						"url" : "http://ch9northcentralus.blob.core.windows.net/mfupload/114d3244ae8f4ef2aef6a7b3011533a4/AzureFridayEricRadzikowskiVMScheduledEvents.mp4",
+						"expression" : "full",
+						"duration" : "771",
+						"fileSize" : "1",
+						"type" : "video/mp4",
+						"medium" : "video"
+					}
+				}, {
+					"$" : {
+						"url" : "http://video.ch9.ms/ch9/1b11/f44de0bb-caf7-42c8-8a7b-9cc3aae71b11/AzureFridayEricRadzikowskiVMScheduledEvents.mp3",
+						"expression" : "full",
+						"duration" : "771",
+						"fileSize" : "12345442",
+						"type" : "audio/mp3",
+						"medium" : "audio"
+					}
+				}, {
+					"$" : {
+						"url" : "http://video.ch9.ms/ch9/1b11/f44de0bb-caf7-42c8-8a7b-9cc3aae71b11/AzureFridayEricRadzikowskiVMScheduledEvents.mp4",
+						"expression" : "full",
+						"duration" : "771",
+						"fileSize" : "24564384",
+						"type" : "video/mp4",
+						"medium" : "video"
+					}
+				}, {
+					"$" : {
+						"url" : "http://video.ch9.ms/ch9/1b11/f44de0bb-caf7-42c8-8a7b-9cc3aae71b11/AzureFridayEricRadzikowskiVMScheduledEvents_high.mp4",
+						"expression" : "full",
+						"duration" : "771",
+						"fileSize" : "430757817",
+						"type" : "video/mp4",
+						"medium" : "video"
+					}
+				}, {
+					"$" : {
+						"url" : "http://video.ch9.ms/ch9/1b11/f44de0bb-caf7-42c8-8a7b-9cc3aae71b11/AzureFridayEricRadzikowskiVMScheduledEvents_mid.mp4",
+						"expression" : "full",
+						"duration" : "771",
+						"fileSize" : "92701410",
+						"type" : "video/mp4",
+						"medium" : "video"
+					}
+				}
+			]
+		}
+	],
+	"enclosure" : [{
+			"$" : {
+				"url" : "http://video.ch9.ms/ch9/1b11/f44de0bb-caf7-42c8-8a7b-9cc3aae71b11/AzureFridayEricRadzikowskiVMScheduledEvents_high.mp4",
+				"length" : "430757817",
+				"type" : "video/mp4"
+			}
+		}
+	],
+	"dc:creator" : ["Scott Hanselman, Rob Caron"],
+	"itunes:author" : ["Scott Hanselman, Rob Caron"],
+	"slash:comments" : ["0"],
+	"wfw:commentRss" : ["http://channel9.msdn.com/Shows/Azure-Friday/Using-Azure-Scheduled-Events-to-Prepare-for-VM-Maintenance/RSS"],
+	"category" : ["Azure"]
+}

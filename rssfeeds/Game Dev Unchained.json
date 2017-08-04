@@ -1,0 +1,49 @@
+{
+	"guid" : [{
+			"_" : "tag:soundcloud,2010:tracks/335756419",
+			"$" : {
+				"isPermaLink" : "false"
+			}
+		}
+	],
+	"title" : ["0097: Unity Community Management With Blaine Pascu"],
+	"pubDate" : ["Tue, 01 Aug 2017 06:03:47 +0000"],
+	"link" : ["http://feedproxy.google.com/~r/GameDevUnchained/~3/fXDKYzTSjcQ/0097-unity-community-management-with-blaine-pascu"],
+	"itunes:duration" : ["01:02:55"],
+	"itunes:author" : ["Game School Online"],
+	"itunes:explicit" : ["yes"],
+	"itunes:summary" : ["Blaine Pascu is a community manager at Unity. He has been part of Unity when there was only 30 people in the San Francisco office and now has grown over 1000 employees in 3 short years. He drops some sage advice on how best to manage social networking and talks about democratizing game development.\r\n\r\n*Correction* When asked about the two assets that was made a part of Unity 2017 Blaine said Cinemachine and NGUI. Unity haven't acquired NGUI but have made both Cinemachine and Text Mesh Pro free for users."],
+	"itunes:subtitle" : ["Blaine Pascu is a community manager at Unity. He …"],
+	"description" : ["Blaine Pascu is a community manager at Unity. He has been part of Unity when there was only 30 people in the San Francisco office and now has grown over 1000 employees in 3 short years. He drops some sage advice on how best to manage social networking and talks about democratizing game development.\r\n\r\n*Correction* When asked about the two assets that was made a part of Unity 2017 Blaine said Cinemachine and NGUI. Unity haven't acquired NGUI but have made both Cinemachine and Text Mesh Pro free for users.<img src=\"http://feeds.feedburner.com/~r/GameDevUnchained/~4/fXDKYzTSjcQ\" height=\"1\" width=\"1\" alt=\"\"/>"],
+	"enclosure" : [{
+			"$" : {
+				"type" : "audio/mpeg",
+				"url" : "http://feeds.soundcloud.com/stream/335756419-gamedevunchained-0097-unity-community-management-with-blaine-pascu.mp3",
+				"length" : "90621203"
+			}
+		}
+	],
+	"itunes:image" : [{
+			"$" : {
+				"href" : "http://i1.sndcdn.com/artworks-000236127976-96a1g4-original.jpg"
+			}
+		}
+	],
+	"dc:creator" : [{
+			"_" : "Game School Online",
+			"$" : {
+				"xmlns:dc" : "http://purl.org/dc/elements/1.1/"
+			}
+		}
+	],
+	"media:content" : [{
+			"$" : {
+				"url" : "http://feeds.soundcloud.com/stream/335756419-gamedevunchained-0097-unity-community-management-with-blaine-pascu.mp3",
+				"fileSize" : "90621203",
+				"type" : "audio/mpeg"
+			}
+		}
+	],
+	"itunes:keywords" : ["Video,Game,Development,Game,Industry,Game,Dev,Video,Games,Making,Games,Game,School,Online"],
+	"feedburner:origLink" : ["https://soundcloud.com/gamedevunchained/0097-unity-community-management-with-blaine-pascu"]
+}

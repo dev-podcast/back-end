@@ -36,7 +36,7 @@ podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) {
             docs.forEach(function(record){
                 resultset.push(record._doc);
             });
-            console.log(docs);
+            //console.log(docs);
             return resultset;
         } else {
             return new Array();
@@ -67,7 +67,7 @@ podcastSchema.statics.getPodcastsByName = function getPodcastByName(name, callba
             docs.forEach(function(record){
                 resultset.push(record._doc);
             });
-            console.log(docs);
+          //  console.log(docs);
             return resultset;
         } else {
             return new Array();
@@ -84,7 +84,7 @@ podcastSchema.statics.getAllPodcastsByTag = function getAllPodcastsByTag(tag, ca
             docs.forEach(function(record){
                 resultset.push(record._doc);
             });
-            console.log(docs);
+           // console.log(docs);
             return resultset;
         } else {
             return new Array();

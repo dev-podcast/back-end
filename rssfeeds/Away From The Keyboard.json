@@ -1,0 +1,40 @@
+{
+	"title" : ["Episode 69: Bradley Ball on TV, Film, the World Series, and Data"],
+	"itunes:summary" : ["Bradley Ball is back for his second stint on the show. The convo starts with Brad sharing what he’s excited about in the comic movie world. Then we talk about the television shows that he’s..."],
+	"itunes:image" : [{
+			"$" : {
+				"href" : "http://awayfromthekeyboard.com/wp-content/uploads/2017/07/Bradley_Ball_Front_2-400x400.png"
+			}
+		}
+	],
+	"link" : ["http://awayfromthekeyboard.com/2017/07/14/bradley-ball-talks-superheroes-on-film-and-tv/"],
+	"pubDate" : ["Fri, 14 Jul 2017 16:00:11 +0000"],
+	"dc:creator" : ["Richie Rump"],
+	"guid" : [{
+			"_" : "http://awayfromthekeyboard.com/?p=962",
+			"$" : {
+				"isPermaLink" : "false"
+			}
+		}
+	],
+	"description" : ["Bradley Ball is back for his second stint on the show. The convo starts with Brad sharing what he&#8217;s excited about in the comic movie world. Then we talk about the television shows that he&#8217;s..."],
+	"content:encoded" : ["Bradley Ball is back for his second stint on the show. The convo starts with Brad sharing what he&#8217;s excited about in the comic movie world. Then we talk about the television shows that he&#8217;s..."],
+	"enclosure" : [{
+			"$" : {
+				"url" : "http://awayfromthekeyboard.com/wp-content/uploads/2017/07/Episode_069_Bradley_Ball_-on_TV_Film_the_World_Series_and_Data.mp3",
+				"length" : "55118727",
+				"type" : "audio/mpeg"
+			}
+		}
+	],
+	"itunes:duration" : ["52:06"],
+	"itunes:explicit" : ["No"],
+	"itunes:author" : ["Richie Rump"],
+	"post-id" : [{
+			"_" : "962",
+			"$" : {
+				"xmlns" : "com-wordpress:feed-additions:1"
+			}
+		}
+	]
+}

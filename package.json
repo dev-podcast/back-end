@@ -31,7 +31,9 @@
     "mongoose": "^4.9.3",
     "mongoose-sequence": "^3.2.0",
     "morgan": "^1.8.1",
+    "mp3-duration": "^1.0.10",
     "promise": "^7.1.1",
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "xml2js": "^0.4.17"
   }
 }
