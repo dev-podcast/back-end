@@ -1,0 +1,28 @@
+{
+	"title" : ["Podcast 346 - Moose Capoose"],
+	"link" : ["http://media.toddklindt.com/Netcast/Podcast346-MooseCapoose.mp3"],
+	"description" : ["In this episode Todd calls from the edge of the earth and does the podcast with Shane over his phone. They discuss Shane's new PowerShell script and accompanying video on how to move file shares to SharePoint Online. You can check it out on his YouTube channel. Todd was busy making videos too. His was on adding custom domains to Office 365. They finish up talking about SharePoint Search, Ready Player One, and the exaggerated death of MSPaint."],
+	"author" : ["Todd@toddklindt.com (Todd Klindt)"],
+	"enclosure" : [{
+			"$" : {
+				"url" : "http://media.toddklindt.com/Netcast/Podcast346-MooseCapoose.mp3",
+				"length" : "42036407",
+				"type" : "audio/mp3"
+			}
+		}
+	],
+	"guid" : [{
+			"_" : "http://media.toddklindt.com/Netcast/Podcast346-MooseCapoose.mp3",
+			"$" : {
+				"isPermaLink" : "true"
+			}
+		}
+	],
+	"pubDate" : ["Wed, 26 Jul 2017 21:32:25 GMT"],
+	"itunes:author" : ["Todd Klindt and Shane Young"],
+	"itunes:duration" : ["00:42:26"],
+	"itunes:explicit" : ["no"],
+	"itunes:keywords" : ["SharePoint, PowerShell, SQL, Office 365, Azure"],
+	"itunes:subtitle" : ["Podcast 346 - Moose Capoose"],
+	"itunes:summary" : ["In this episode Todd calls from the edge of the earth and does the podcast with Shane over his phone. They discuss Shane's new PowerShell script and accompanying video on how to move file shares to SharePoint Online. You can check it out on his YouTube channel. Todd was busy making videos too. His was on adding custom domains to Office 365. They finish up talking about SharePoint Search, Ready Player One, and the exaggerated death of MSPaint."]
+}
