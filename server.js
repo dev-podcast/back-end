@@ -67,6 +67,12 @@ const initializeDB = async () => {
 };
 
 const initializeData = function() {
+
+  String.prototype.toObjectId = function() {
+    var ObjectId = require("mongoose").Types.ObjectId;
+    return new ObjectId(this.toString());
+  };
+
   // insertDefaultPodcastCategories(); //Method that updates the Categories collection/table with initial data if there is none.
   insertDefaultTags(); //Method that updates the Tags collection/table with initial data if there is none.
   // insertBasePodcastList(); //Method that updates the Base Podcast collection/table with initial data if there is none.
@@ -573,7 +579,7 @@ app.get("/api/episodes/:id", function(req, res) {
 app.get("/api/podcasts/episodes/:show_id", function(req, res) {
   //Main page
   var id = req.params.show_id;
-  Episode.getAllEpisodes()
+  Episode.getAllEpisodes(id)
     .then(result => {
       res.end(JSON.stringify(result));
     })
@@ -613,7 +619,7 @@ app.get("/api/podcasts/episodes/recents/:show_id/:limit", function(req, res) {
       console.log(err);
     });
 });
-
+/* 
 app.get("/api/podcast/episodes/tag/:tag", function(req, res) {
   var tag = req.params.tag;
   Episode.getAllEpisodesByTag(tag)
@@ -624,3 +630,4 @@ app.get("/api/podcast/episodes/tag/:tag", function(req, res) {
       console.log(err);
     });
 });
+ */

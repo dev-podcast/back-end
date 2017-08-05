@@ -15,7 +15,7 @@ var podcastSchema = new Schema({
     img_url: String,
     show_url: String,
     feed_url: String,
-    pod_release_date: Date,
+    pod_release_date: Date, //need to rename this to episode release date
     episode_count: Number,
     country: String,
     created_date: Date,
@@ -81,7 +81,7 @@ podcastSchema.statics.getPodcastsByName = function getPodcastByName(name, callba
 podcastSchema.statics.getRecentPodcasts = function getRecentPodcasts(limitTo,
   callback
 ) {
-  var promise = this.model("Podcast").find().sort({ pod_release_date: -1}).limit(limitTo)
+  var promise = this.model("Podcast").find({},'show_id show_title description img_url show_url pod_release_date artists tags').sort({ pod_release_date: -1}).limit(limitTo)
     .exec();
   return promise.then(function(docs) {
     if (docs != null && docs.length > 0) {
@@ -104,23 +104,18 @@ podcastSchema.statics.getAllPodcastsByTag = async function getAllPodcastsByTag(t
     var resultset = [];
     var tagPromise = Tag.findOne({_id: tag}).exec();
     var associatedPodcasts = [];
-    return tagPromise.then(function(tag){
+    return tagPromise.then(async function(tag){
         if(tag != null) {
             associatedPodcasts = tag._doc.associated_podcasts;
-            if(associatedPodcasts.length > 0){
-               return associatedPodcasts.forEach((record) => {
-                    var podPromise = self.find({_id: record}).exec();
-                    podPromise.then(function(pod){
-                         return resultset.push(record);
-                    }).then(function(done){
-                        return resultset;   
-                    });   
-                    return resultset;             
-                }).then(function(val){
-                    return resultset;
-                });              
+            if(associatedPodcasts.length > 0){   
+                return self.find({
+                    _id: {
+                        $in: associatedPodcasts
+                    }
+                },'show_title show_id description img_url show_url pod_release_date artists tags recent_episode_date');       
             }
         }
+       // return new Array();
     });
   /*   if(tag != null) {
           var associatedPodcasts = tag._doc.associated_podcasts; 
