@@ -3,6 +3,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var AutoIncrement = require("mongoose-sequence");
+var ObjectId = require("mongoose").Types.ObjectId;
 
 var episodeSchema = new Schema({
   ep_id: { type: Number},
@@ -29,7 +30,16 @@ episodeSchema.statics.getAllEpisodes = function getAllEpisodes(
   show_id,
   callback
 ) {
-  var promise = this.model("Episode").where("show.show_id").equals(show_id).exec();
+  var self = this;
+  var _id = null;
+  try {
+    _id = new ObjectId(show_id);
+  } catch (err) {
+    return err;
+  }
+  var promise = self
+    .find({ show: { $in: [_id] } })
+    .sort({ published_date: -1 }).exec();
   return promise.then(function(docs) {
     if (docs != null && docs.length > 0) {
       var resultset = [];
@@ -48,6 +58,7 @@ episodeSchema.statics.getAllEpisodes = function getAllEpisodes(
 
 //Static method that gets a podcast with the specified show_id
 episodeSchema.statics.getEpisodesByID = function getEpisodesByID(id, callback) {
+  var self = this;
   var promise = this.model("Episode").where("_id").equals(id).exec();
   return promise.then(function(doc) {
     if (doc != null && doc.length > 0) {
@@ -60,7 +71,7 @@ episodeSchema.statics.getEpisodesByID = function getEpisodesByID(id, callback) {
 };
 
 
-episodeSchema.statics.getAllEpisodesByTag = function getAllEpisodesByTag(
+/* episodeSchema.statics.getAllEpisodesByTag = function getAllEpisodesByTag(
   tag,
   callback
 ) {
@@ -79,13 +90,20 @@ episodeSchema.statics.getAllEpisodesByTag = function getAllEpisodesByTag(
     }
   });
 };
-
+ */
 episodeSchema.statics.getRecentEpisodes = function getRecentEpisodes(show_id,
   limitTo,
   callback
 ) {
-  var promise = this.model("Episode")
-    .find({show: show_id})
+  var self = this;
+  var _id = null; 
+  try {
+    _id = new ObjectId(show_id);
+  }catch(err){
+    return err;
+  }
+  var promise = self
+    .find({show: _id},'ep_id title show author published_date source_url image_url description ')
     .sort({ published_date: -1})
     .limit(limitTo)
     .exec();
