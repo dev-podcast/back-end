@@ -33,23 +33,25 @@ var audiosearch = new Audiosearch(AUDIOSEARCH_APP_ID, AUDIOSEARCH_SECRET);
 const initializeDB = async () => {
   // Connection URL to the podcast database
   var localurl = "mongodb://localhost:27017/podcasts";
-  var mlabUrl = "mongodb://admin:thisiscs50@ds129143.mlab.com:29143/dev-podcasts";
-  var options = {server: {socketOptions: {keepAlive: 300000, connectTimeoutMS: 30000}},
-        replset: {socketOptions: {keepAlive: 300000, connectTimeoutMS: 30000}}};
-
+  var mlabUrl =
+    "mongodb://admin:thisiscs50@ds129143.mlab.com:29143/dev-podcasts";
+  var options = {
+    server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
+    replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }
+  };
 
   mongoose.Promise = Promise; //Set the promise object for mongoose.
-  mongoose.connect(mlabUrl,options); //Connect to the running mongoDB instance
+  mongoose.connect(mlabUrl, options); //Connect to the running mongoDB instance
   var conn = mongoose.connection;
 
-  conn.on('error',console.error.bind(console,'connection error:'));
+  conn.on("error", console.error.bind(console, "connection error:"));
 
-  await conn.once('open', function() {
-      console.log("MongoDB connection established!");
+  await conn.once("open", function() {
+    console.log("MongoDB connection established!");
   });
-    
-  
-  /*   Episode.counterReset('ep_id',function(err) {
+
+  /* 
+     Episode.counterReset('ep_id',function(err) {
       console.log(err);
   });
 
@@ -87,7 +89,7 @@ const insertDefaultPodcastCategories = function() {
     }
     return;
   });
-}
+};
 
 const insertDefaultTags = function() {
   Tag.count({}, async (err, count) => {
@@ -102,21 +104,18 @@ const insertDefaultTags = function() {
           });
         }
         tagRecord.save(function(err) {
-          console.log("Tag: " + tagRecord.description + " was added!");
+          // console.log("Tag: " + tagRecord.description + " was added!");
         });
       }
     }
     return;
-  }).catch((err)=> {
+  }).catch(err => {
     console.log(err);
   });
-}
+};
 
 initializeDB();
-//initializeData();
-
-
-
+initializeData();
 
 const getRSSDataForPodcasts = function() {
   var podcastList = Podcast.getAllPodcasts()
@@ -155,7 +154,7 @@ const updatePodcastData = async function() {
 };
 
 //updatePodcastData();
-getRSSDataForPodcasts();
+//getRSSDataForPodcasts();
 
 const buildItunesQueryUrl = async function(id) {
   var url = "https://itunes.apple.com/lookup/" + id;
@@ -173,8 +172,8 @@ const buildItunesQueryUrl = async function(id) {
         }).exec();
         if (!exists) {
           var podcast = new Podcast();
-          
-        var currentdate = new Date(Date.now()).toLocaleString();
+
+          var currentdate = new Date(Date.now()).toLocaleString();
           podcast.created_date = currentdate;
           podcast.show_title = responsePod.trackName;
           podcast.img_url = responsePod.artworkUrl100;
@@ -191,18 +190,19 @@ const buildItunesQueryUrl = async function(id) {
             });
 
           var genres = responsePod.genres;
-          var listOfTags = await queryOrInsertTags(genres);
+          var listOfTags = await queryOrInsertTags(genres, podcast);
 
           podcast.tags = listOfTags;
 
+          podcast.artists = responsePod.artistName;
           //TODO: Need to clean up some of the host names coming out Itunes.
-          var host = new Host();
+          /*  var host = new Host();
           host.name = responsePod.artistName;
-          // host.associated_podcast = podcast;
+           host.associated_podcast = podcast; */
 
-          host.save(function(err) {
+          /* host.save(function(err) {
             if (err) throw err;
-          });
+          }); */
           // console.log(host.name);
 
           var date = Date.parse(responsePod.releaseDate);
@@ -213,7 +213,7 @@ const buildItunesQueryUrl = async function(id) {
             date = null;
           }
 
-          podcast.host = host;
+          //podcast.host = host;
 
           podcast.save(function(err) {
             if (err) throw err;
@@ -229,7 +229,7 @@ const buildItunesQueryUrl = async function(id) {
 
 const queryOrHost = async function(host) {};
 
-const queryOrInsertTags = async function(genres) {
+const queryOrInsertTags = async function(genres, podcast) {
   var tags = new Array();
   if (genres.length > 0) {
     for (var i = 0; i < genres.length; i++) {
@@ -238,21 +238,18 @@ const queryOrInsertTags = async function(genres) {
       if (doc == null || doc._doc == null) {
         tag = new Tag();
         tag.description = genres[i];
-        tag.save(function(err) {
-          if (err) throw err;
-          // console.log("Tag saved!");
-        });
       } else {
-        tag = doc._doc;
+        tag = doc;
       }
-
-      tags.push(tag);
+      tag._doc.associated_podcasts.push(podcast);
+      tag.save(function(err) {
+        if (err) throw err;
+        tags.push(tag);
+      });
     }
   }
   return tags;
 };
-
-
 
 const getEpisodeData = async function(rsslink, podcast) {
   console.log(podcast.show_title);
@@ -295,7 +292,7 @@ const getEpisodeData = async function(rsslink, podcast) {
                       }
 
                       episode.published_date = ep.pubDate[0];
-                     // episode.created_date  
+                      // episode.created_date
                       episode.image_url = null; // ep["itunes:image"][0].length > 0 ? ep["itunes:image"][0].$.href : null;
 
                       episode.show = podcast;
@@ -328,10 +325,14 @@ const getEpisodeData = async function(rsslink, podcast) {
 
                       if (ep.hasOwnProperty("itunes:keywords")) {
                         episode.tags = await parseTagsInString(
-                          ep["itunes:keywords"][0]
+                          ep["itunes:keywords"][0],
+                          episode
                         );
                       } else if (ep.hasOwnProperty("category")) {
-                        episode.tags = await parseTagsInString(ep.category[0]);
+                        episode.tags = await parseTagsInString(
+                          ep.category[0],
+                          episode
+                        );
                       } else {
                         episode.tags = null;
                       }
@@ -358,7 +359,7 @@ const getEpisodeData = async function(rsslink, podcast) {
   }
 };
 
-const parseTagsInString = async function(tagString) {
+const parseTagsInString = async function(tagString, episode) {
   var listOfTags = new Array();
   tagString = tagString.toString();
   if (tagString != null && tagString != "") {
@@ -366,24 +367,27 @@ const parseTagsInString = async function(tagString) {
     for (var i = 0; i < tags.length; i++) {
       var tag = tags[i];
       var newTag = null;
+      //var alreadyAssociated = false;
       var doc = await Tag.findOne({ description: tag }).exec();
       if (doc != null && doc._doc != null) {
-        newTag = doc._doc;
+        newTag = doc;
       } else {
         newTag = new Tag();
         newTag.description = tag;
-        newTag.save(function(err) {
-          if (err) {
-            throw err;
-          }
-        });
       }
+
+      newTag._doc.associated_episodes.push(episode);
+
+      newTag.save(function(err) {
+        if (err) {
+          throw err;
+        }
+      });
       listOfTags.push(newTag);
     }
   }
   return listOfTags.length <= 0 ? null : listOfTags;
 };
-
 
 //These two methods should go to web_requests.js
 const queryUrl = async function(url) {
@@ -452,50 +456,117 @@ app.get("/api/podcasts", function(req, res) {
     });
 });
 
+//Get recent podcasts the limit is set by the requestor;
+app.get("/api/podcasts/recents/:limit", function(req, res) {
+  //Recents
+  var limitTo = parseInt(req.params.limit);
+  if (limitTo == null || limitTo == undefined) {
+    limitTo = 15;
+  }
+  Podcast.getRecentPodcasts(limitTo)
+    .then(result => {
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {
+      console.log(err);
+    });
+});
+
+//Get recent podcasts default is last 15;
+app.get("/api/podcasts/recents", function(req, res) {
+  //Recents
+  var limitTo = 15;
+  Podcast.getRecentPodcasts(limitTo)
+    .then(result => {
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {
+      console.log(err);
+    });
+});
+
+
+
 //Get all podcasts that contain the specified tag
 app.get("/api/podcasts/tag/:tag", function(req, res) {
   var tag = req.params.tag;
-  Podcast.getAllPodcastsByTag(tag).then(function(result) {
-    res.end(JSON.stringify(result));
-  });
+  Podcast.getAllPodcastsByTag(tag)
+    .then(result => {
+
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {});
 });
 
 //All podcasts for a specific category
 app.get("/api/podcasts/category/:type", function(req, res) {
   var cat = req.params.type;
-  Podcast.getPodcastsByCategory(cat).then(function(result) {
-    res.end(JSON.stringify(result));
-  });
+  Podcast.getPodcastsByCategory(cat)
+    .then(function(result) {
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {});
 });
 
 //Get all podcast categories.
 app.get("/api/category", function(req, res) {
-  CategoryType.getAllCategories().then(function(result) {
-    res.end(JSON.stringify(result));
-  });
+  CategoryType.getAllCategories()
+    .then(function(result) {
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {
+      console.log(err);
+    });
 });
 
 //Get the podcast with the specified ID
 app.get("/api/podcasts/:id", function(req, res) {
   var id = req.params.id;
-  Podcast.getPodcastByID(id).then(function(result) {
-    res.end(JSON.stringify(result));
-  });
+  Podcast.getPodcastByID(id)
+    .then(function(result) {
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {
+      console.log(err);
+    });
 });
 
+//Get podcasts that matched the given string
 app.get("/api/podcasts/search/:name", function(req, res) {
   var name = req.params.name;
-  Podcast.getPodcastsByName(name).then(function(result) {
-    res.end(JSON.stringify(result));
-  });
+  Podcast.getPodcastsByName(name)
+    .then(function(result) {
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {
+      console.log(err);
+    });
 });
+
+
+
+//Get all episodes
+/* app.get("/api/episodes", function(req, res) {
+  //Main page
+  Podcast.getAllEpisodes()
+    .then(result => {
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}); */
 
 //Get the episode with the specified ID
 app.get("/api/episodes/:id", function(req, res) {
   var id = req.params.id;
-  Episode.getEpisodesByID(id).then(function(result) {
-    res.end(JSON.stringify(result));
-  });
+  Episode.getEpisodesByID(id)
+    .then(function(result) {
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {
+      console.log(err);
+    });
 });
 
 //Get all episodes for the specified podcast
@@ -511,11 +582,45 @@ app.get("/api/podcasts/episodes/:show_id", function(req, res) {
     });
 });
 
+//Get recent podcasts default is last 15;
+app.get("/api/podcasts/episodes/recents/:show_id/", function(req, res) {
+  //Recents
+  var limitTo = 15;
+  var show_id = req.params.show_id;
+  Episode.getRecentEpisodes(show_id,limitTo)
+    .then(result => {
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {
+      console.log(err);
+    });
+});
+
+
+//Get recent podcasts the limit is set by the requestor;
+app.get("/api/podcasts/episodes/recents/:show_id/:limit", function(req, res) {
+  //Recents
+  var show_id = req.params.show_id;
+  var limitTo = parseInt(req.params.limit);
+  if (limitTo == null || limitTo == undefined) {
+    limitTo = 15;
+  }
+  Episode.getRecentEpisodes(show_id, limitTo)
+    .then(result => {
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {
+      console.log(err);
+    });
+});
 
 app.get("/api/podcast/episodes/tag/:tag", function(req, res) {
   var tag = req.params.tag;
-  Episode.getAllEpisodesByTag(tag).then(function(result) {
-    res.end(JSON.stringify(result));
-  });
+  Episode.getAllEpisodesByTag(tag)
+    .then(function(result) {
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {
+      console.log(err);
+    });
 });
- 

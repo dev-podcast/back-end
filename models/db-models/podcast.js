@@ -3,6 +3,7 @@
 var mongoose = require('mongoose'); //Reference mongoose. 
 var Schema = mongoose.Schema;
 var AutoIncrement = require('mongoose-sequence');
+var Tag = require("./tag.js").Tag;
 
 
 //Define our model's properties/attributes and their respective types. 
@@ -18,6 +19,7 @@ var podcastSchema = new Schema({
     episode_count: Number,
     country: String,
     created_date: Date,
+    artists: String,
     category: [{ type: Schema.Types.ObjectId, ref: 'CategoryType'}],
     host: [{ type: Schema.Types.ObjectId, ref: 'Host'}],
     recent_episode_date: Date,
@@ -76,21 +78,69 @@ podcastSchema.statics.getPodcastsByName = function getPodcastByName(name, callba
     });
 }
 
-podcastSchema.statics.getAllPodcastsByTag = function getAllPodcastsByTag(tag, callback) {
-    var promise = this.model('Podcast').where('tag.description').equals(tag);
-    return promise.then(function(docs){
-         if(docs != null  && docs.length > 0) {
-            var resultset = [];
-            var len = docs.length;
-            docs.forEach(function(record){
-                resultset.push(record._doc);
-            });
-           // console.log(docs);
-            return resultset;
-        } else {
-            return new Array();
+podcastSchema.statics.getRecentPodcasts = function getRecentPodcasts(limitTo,
+  callback
+) {
+  var promise = this.model("Podcast").find().sort({ pod_release_date: -1}).limit(limitTo)
+    .exec();
+  return promise.then(function(docs) {
+    if (docs != null && docs.length > 0) {
+      var resultset = [];
+      var len = docs.length;
+      docs.forEach(function(record) {
+        resultset.push(record._doc);
+      });
+      //  console.log(docs);
+      return resultset;
+    } else {
+      return new Array();
+    }
+  });
+};
+
+podcastSchema.statics.getAllPodcastsByTag = async function getAllPodcastsByTag(tag, callback) {
+    //var promise = this.model('Podcast').where('tag._id').equals(tag);
+    var self = this;
+    var resultset = [];
+    var tagPromise = Tag.findOne({_id: tag}).exec();
+    var associatedPodcasts = [];
+    return tagPromise.then(function(tag){
+        if(tag != null) {
+            associatedPodcasts = tag._doc.associated_podcasts;
+            if(associatedPodcasts.length > 0){
+               return associatedPodcasts.forEach((record) => {
+                    var podPromise = self.find({_id: record}).exec();
+                    podPromise.then(function(pod){
+                         return resultset.push(record);
+                    }).then(function(done){
+                        return resultset;   
+                    });   
+                    return resultset;             
+                }).then(function(val){
+                    return resultset;
+                });              
+            }
         }
     });
+  /*   if(tag != null) {
+          var associatedPodcasts = tag._doc.associated_podcasts; 
+          if(associatedPodcasts.length > 0) {
+            associatedPodcasts.forEach(async (record)=>{
+                console.log(record);
+                var pod = await this.find({ _id: record }).exec();
+                console.log(pod);
+                if(pod != null) {
+                    resultset.push(pod._doc);
+                }             
+            });
+            return resultset;
+          } else {
+              return new Array();
+          }
+         
+    } else {
+        return new Array();
+    } */
 }
 
 //Static method that gets the podcasts with the specified category code
