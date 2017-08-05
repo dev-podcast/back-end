@@ -64,7 +64,7 @@ episodeSchema.statics.getAllEpisodesByTag = function getAllEpisodesByTag(
   tag,
   callback
 ) {
-  var promise = the.model("Episode").where("tag.description").equals(tag);
+  var promise = the.model("Episode").where("tags._id").equals(tag);
   return promise.then(function(docs) {
     if (docs != null && docs.length > 0) {
       var resultset = [];
@@ -73,6 +73,30 @@ episodeSchema.statics.getAllEpisodesByTag = function getAllEpisodesByTag(
         resultset.push(record._doc);
       });
       // console.log(docs);
+      return resultset;
+    } else {
+      return new Array();
+    }
+  });
+};
+
+episodeSchema.statics.getRecentEpisodes = function getRecentEpisodes(show_id,
+  limitTo,
+  callback
+) {
+  var promise = this.model("Episode")
+    .find({show: show_id})
+    .sort({ published_date: -1})
+    .limit(limitTo)
+    .exec();
+  return promise.then(function(docs) {
+    if (docs != null && docs.length > 0) {
+      var resultset = [];
+      var len = docs.length;
+      docs.forEach(function(record) {
+        resultset.push(record._doc);
+      });
+      //  console.log(docs);
       return resultset;
     } else {
       return new Array();

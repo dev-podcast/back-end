@@ -31,6 +31,8 @@ var AutoIncrement = require('mongoose-sequence');
 var tagSchema = new Schema({
     description: String, 
     code: Number,
+    associated_podcasts: [{type: Schema.Types.ObjectId, ref: 'Podcast'}],
+    associated_episodes: [{type: Schema.Types.ObjectId, ref: 'Episode'}]
 });
 
 //plugin that will reference the code field and cause it to auto increment each time a new record is added. 

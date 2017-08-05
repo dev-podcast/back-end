@@ -38,11 +38,9 @@
                        
             }
 
-        
 
-
-             static async update() {
-                   await getItunesIds();       
+            static async updatePodcastReleaseDates() {
+                // await getItunesIds();     
             }
 
             
