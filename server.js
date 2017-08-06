@@ -50,17 +50,17 @@ const initializeDB = async () => {
     console.log("MongoDB connection established!");
   });
 
-  /* 
+  /*
      Episode.counterReset('ep_id',function(err) {
       console.log(err);
   });
 
-  
+
   Tag.counterReset("code", function(err) {
     console.log(err);
   });
 
-  
+
   Podcast.counterReset("show_id", function(err) {
     console.log(err);
   });   */
@@ -442,6 +442,13 @@ var server = app.listen(9000, function() {
   var port = server.address().port;
 
   console.log("Example app listening at http://%s:%s", host, port);
+});
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  next();
 });
 
 //Get all podcasts
