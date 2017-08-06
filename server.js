@@ -50,20 +50,19 @@ const initializeDB = async () => {
     console.log("MongoDB connection established!");
   });
 
-  /* 
-     Episode.counterReset('ep_id',function(err) {
-      console.log(err);
+/*    
+Episode.nextCount(function(err, count) {
+  // count === 1 -> true
+});
+
+Tag.nextCount(function(err, count) {
+    // count === 1 -> true
   });
 
-  
-  Tag.counterReset("code", function(err) {
-    console.log(err);
-  });
-
-  
-  Podcast.counterReset("show_id", function(err) {
-    console.log(err);
-  });   */
+Podcast.nextCount(function(err, count) {
+  // count === 1 -> true
+}); */
+    
 };
 
 const initializeData = function() {
@@ -160,7 +159,7 @@ const updatePodcastData = async function() {
 };
 
 //updatePodcastData();
-//getRSSDataForPodcasts();
+getRSSDataForPodcasts();
 
 const buildItunesQueryUrl = async function(id) {
   var url = "https://itunes.apple.com/lookup/" + id;
@@ -237,21 +236,29 @@ const queryOrHost = async function(host) {};
 
 const queryOrInsertTags = async function(genres, podcast) {
   var tags = new Array();
+  var tag = null;
   if (genres.length > 0) {
     for (var i = 0; i < genres.length; i++) {
-      var tag = null;
-      var doc = await Tag.findOne({ description: genres[i].toString() }).exec(); // await Tag.tagExists(genres[0]);
+      var genre = genres[i].toString();
+      if(genre != null && genre != ""){
+            var doc = await Tag.findOne({ description: genre }).exec();
       if (doc == null || doc._doc == null) {
         tag = new Tag();
         tag.description = genres[i];
       } else {
         tag = doc;
       }
+
+      if(tag == null) {
+        console.log(tag + podcast);
+      }
       tag._doc.associated_podcasts.push(podcast);
       tag.save(function(err) {
         if (err) throw err;
         tags.push(tag);
       });
+      }
+  
     }
   }
   return tags;
@@ -503,7 +510,7 @@ app.get("/api/podcasts/tag/:tag", function(req, res) {
     })
     .catch(err => {});
 });
-
+/* 
 //All podcasts for a specific category
 app.get("/api/podcasts/category/:type", function(req, res) {
   var cat = req.params.type;
@@ -512,9 +519,9 @@ app.get("/api/podcasts/category/:type", function(req, res) {
       res.end(JSON.stringify(result));
     })
     .catch(err => {});
-});
+}); */
 
-//Get all podcast categories.
+/* //Get all podcast categories.
 app.get("/api/category", function(req, res) {
   CategoryType.getAllCategories()
     .then(function(result) {
@@ -523,9 +530,9 @@ app.get("/api/category", function(req, res) {
     .catch(err => {
       console.log(err);
     });
-});
+}); */
 
-//Get the podcast with the specified ID
+/* //Get the podcast with the specified ID
 app.get("/api/podcasts/:id", function(req, res) {
   var id = req.params.id;
   Podcast.getPodcastByID(id)
@@ -535,9 +542,9 @@ app.get("/api/podcasts/:id", function(req, res) {
     .catch(err => {
       console.log(err);
     });
-});
+}); */
 
-//Get podcasts that matched the given string
+/* //Get podcasts that matched the given string
 app.get("/api/podcasts/search/:name", function(req, res) {
   var name = req.params.name;
   Podcast.getPodcastsByName(name)
@@ -547,7 +554,7 @@ app.get("/api/podcasts/search/:name", function(req, res) {
     .catch(err => {
       console.log(err);
     });
-});
+}); */
 
 
 

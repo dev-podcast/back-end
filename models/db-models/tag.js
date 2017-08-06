@@ -25,7 +25,9 @@ var tags = [ //main podcast/episode tag list
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var AutoIncrement = require('mongoose-sequence');
+var AutoIncrement = require("mongoose-auto-increment");
+
+AutoIncrement.initialize(mongoose.connection);
 
 //Define our model's properties/attributes and their respective types. 
 var tagSchema = new Schema({
@@ -36,7 +38,9 @@ var tagSchema = new Schema({
 });
 
 //plugin that will reference the code field and cause it to auto increment each time a new record is added. 
-tagSchema.plugin(AutoIncrement, {inc_field: 'code'});
+
+tagSchema.plugin(AutoIncrement.plugin, {model: 'Tag', field: 'code'} );
+//tagSchema.plugin(AutoIncrement, {inc_field: 'code'});
 
 tagSchema.statics.tagExists = function tagExists(descr, callback) {
      var promise = this.model("Tag").where('description').equals(descr).exec();
