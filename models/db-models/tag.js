@@ -1,27 +1,4 @@
 /*** Tag.js */
-var tags = [ //main podcast/episode tag list
-    {"description": ".net"}, 
-    {"description": "c#"}, 
-    {"description": "server"}, 
-    {"description": "js"}, 
-    {"description": "javascript"}, 
-    {"description": "nodejs"}, 
-    {"description": "web"}, 
-    {"description": "c++"},
-    {"description": "vb"}, 
-    {"description": "entity framework"}, 
-    {"description": "SQL server"}, 
-    {"description": "t-sql"}, 
-    {"description": "ssrs"},
-    {"description": "ssis"},
-    {"description": "mobile"},
-    {"description": "android"},
-    {"description": "ios"},
-    {"description": "java"},
-    {"description": "react"},
-    {"description": "angularjs"},
-]
-
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
@@ -73,7 +50,4 @@ tagSchema.statics.tagExists = function tagExists(descr, callback) {
 var Tag = mongoose.model('Tag',tagSchema);
 
 //Make this available to our Node application.
-module.exports =  {
-  Tag: Tag, 
-  Tags: tags   
-};
+module.exports =  Tag;

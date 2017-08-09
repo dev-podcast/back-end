@@ -65,7 +65,23 @@ podcastSchema.statics.getPodcastByID = function getPodcastByID(id, callback) {
   });
 };
 
-podcastSchema.statics.getPodcastsByName = function getPodcastByName(
+podcastSchema.statics.getPodcastsByTitle = function getPodcastsByTitle(
+  name,
+  callback
+) {
+  var promise = this.model("Podcast")
+    .findOne({ show_title: name })
+    .exec();
+  return promise.then(function(doc) {
+    if (doc != null && doc.length > 0) {
+      return doc;
+    } else {
+      return null;
+    }
+  });
+};
+
+podcastSchema.statics.searchPodcastsByTitle = function searchPodcastsByTitle(
   name,
   callback
 ) {
