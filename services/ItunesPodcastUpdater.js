@@ -5,18 +5,41 @@ const request = require("request-promise");
 const BasePodcast = ext_models.basepod;
 const Podcast = db_models.podcast;
 const Host = db_models.host;
+const Tag = db_models.tag;
 
 const base_lookup_url = "https://itunes.apple.com/lookup/";
-const options = {
-  method: "GET",
-  url: base_lookup_url,
-  json: true
+
+const buildItunesQuery = function(id) {
+  var url = base_lookup_url + id;
+  var options = {
+    method: "GET", 
+    url: url, 
+    json: true
+  };
+  return options;
 };
 
-const buildItunesQuery = async function(id) {
-  var url = base_lookup_url + id;
-  options.url = url;
-  return options;
+const getLatestEpisodeDate = async (options) => {
+  request(options).then(async (response) =>{
+      if(response != null && response.resultCount > 0){
+         var responsePod = response.results[0];
+         var exists = await Podcast
+          .findOne({
+            show_title: responsePod.trackName.toString()
+          })
+          .exec();
+        if (exists) {
+            var podcast = exists;       
+            var date = Date.parse(responsePod.releaseDate);
+            if (isNaN(date) == false) {
+              var d = new Date(responsePod.releaseDate);
+              if(d.getTime() !== podcast._doc.pod_release_date.getTime()){
+                  podcast._doc.pod_release_date = d;
+              }           
+            } 
+        }
+      }
+  });
 };
 
 const buildPodcastData = async function(options) {
@@ -24,7 +47,7 @@ const buildPodcastData = async function(options) {
     .then(async response => {
       if (response != null && response.resultCount > 0) {
         var responsePod = response.results[0];
-        var exists = awaitPodcast
+        var exists = await Podcast
           .findOne({
             show_title: responsePod.trackName.toString()
           })
@@ -35,7 +58,7 @@ const buildPodcastData = async function(options) {
           var currentdate = new Date(Date.now()).toLocaleString();
           podcast.created_date = currentdate;
           podcast.show_title = responsePod.trackName;
-          podcast.img_url = responsePod.artworkUrl100;
+          podcast.image_url = responsePod.artworkUrl600;
           podcast.feed_url = responsePod.feedUrl;
           podcast.episode_count = responsePod.trackCount;
           podcast.country = responsePod.country;
@@ -68,21 +91,19 @@ const buildPodcastData = async function(options) {
           if (isNaN(date) == false) {
             var d = new Date(responsePod.releaseDate);
             podcast.pod_release_date = d;
-          } else {
-            date = null;
           }
 
           //podcast.host = host;
 
           podcast.save(function(err) {
             if (err) throw err;
-            // console.log("Podcast: " + podcast.show_title + " saved!");
+             console.log("Podcast: " + podcast.show_title + " saved!");
           });
         }
       }
     })
     .catch(err => {
-      if (err) throw err;
+      if (err) throw console.log(err);
     });
 };
 
@@ -122,16 +143,35 @@ class ItunesPodcastUpdater {
     BasePodcast.getAllItunesIds().then(result => {
       if (result != null && result.length > 0) {
         var listOfIds = result;
-        listOfIds.forEach(async itunesid => {
-          var options  = await buildItunesQuery(itunesid);
+        var count = 1;     
+        listOfIds.forEach(async (itunesid) => {
+          var options = await buildItunesQuery(itunesid);  
           await buildPodcastData(options);
+          count++;
         });
       }
+    }).catch((err)=>{
+       console.log(err);
     });
   }
 
   static updatePodcastReleaseDates() {
-    // await getItunesIds();
+    BasePodcast.getAllItunesIds()
+      .then(result => {
+        if (result != null && result.length > 0) {
+          var listOfIds = result;
+          var count = 1;
+          listOfIds.forEach(async (itunesid) => {
+            var options = await buildItunesQuery(itunesid);
+            await getLatestEpisodeDate(options);
+            count++;
+            console.log("Updated " + count + " podcasts so far.");
+          });
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 }
 

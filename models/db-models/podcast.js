@@ -11,7 +11,7 @@ var podcastSchema = new Schema({
   show_title: { type: String, required: true },
   network: String,
   description: String,
-  img_url: String,
+  image_url: String,
   show_url: String,
   feed_url: String,
   pod_release_date: Date, //need to rename this to episode release date

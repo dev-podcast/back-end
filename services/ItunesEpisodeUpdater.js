@@ -1,9 +1,10 @@
 "use strict";
-const db_models = require("./models/db-models");
+const db_models = require("../models/db-models");
 const request = require("request-promise");
 const Episode = db_models.episode;
 const Podcast = db_models.podcast;
 const Tag = db_models.tag;
+const parseStringXml = require("xml2js").parseString;
 
 
 const getRSSDataForPodcasts = function() {
@@ -11,26 +12,33 @@ const getRSSDataForPodcasts = function() {
     .then(async pods => {
       if (pods != null && pods.length > 0) {
         var interval = 10 * 200;
-        for (var i = 0; i < pods.length; i++) {
-          setTimeout(
-            async function(i) {
+        var i = 0; 
+        pods.forEach(async (podcast) => {
+          setTimeout(async (i)=>{
+             var rsslink = podcast.feed_url;  
+              await getEpisodeData(rsslink, podcast);
+          }, interval * i, i);
+         i++;
+        }).then((result) =>{
+          //console.log("Done updating podcast episodes.")
+        });
+        /* for (var i = 0; i < pods.length; i++) {
+          //setTimeout(
+           // async function(i) {
               var podcast = pods[i];
               var rsslink = podcast.feed_url;
-              await getEpisodeData(rsslink, podcast);
-            },
-            interval * i,
-            i
-          );
+             
+            } */   
         }
-      }
-    })
+      })
     .catch(err => {
       console.log(err);
     });
 };
 
 const getEpisodeData = async function(rsslink, podcast) {
-  console.log(podcast.show_title);
+  //console.log(podcast.show_title);
+   console.log("Updating episodes for podcast:  " + podcast.show_title);
   var episodes = new Array();
   if (rsslink != null && rsslink != "") {
     await queryUrl(rsslink)
@@ -39,11 +47,14 @@ const getEpisodeData = async function(rsslink, podcast) {
           if (result != null && result != undefined) {
             var channel = result.rss.channel[0];
             if (channel != null && channel != undefined) {
+
+          
+
+              //var image = channel.image[0].url[0];
               if (channel.hasOwnProperty("item")) {
                 var episodelist = channel.item;
-                for (var i = 0; i < episodelist.length; i++) {
-                  var ep = episodelist[i];
-                  try {
+              episodelist.forEach(async (ep) => {
+                try {
                     var existingEp = await Episode.findOne({
                       title: ep.title[0]
                     }).exec();
@@ -71,9 +82,21 @@ const getEpisodeData = async function(rsslink, podcast) {
 
                       episode.published_date = ep.pubDate[0];
                       // episode.created_date
-                      episode.image_url = null; // ep["itunes:image"][0].length > 0 ? ep["itunes:image"][0].$.href : null;
+                    //  episode.image_url = null; // ep["itunes:image"][0].length > 0 ? ep["itunes:image"][0].$.href : null;
 
                       episode.show = podcast;
+/* 
+                        if (ep.hasOwnProperty("itunes:image")) {
+                          var objImg = ep["itunes:image"][0];
+                          if(objImg != null) {
+                            episode.image_url = objImg.$.href;                           
+                          }                        
+                        } else if (ep.hasOwnProperty("image")) {
+                          episode.image_url = ep.image[0].url[0];                        
+                        } else {
+                          episode.image_url = null;
+                        } */
+
 
                       if (ep.hasOwnProperty("itunes:author")) {
                         episode.author = ep["itunes:author"][0];
@@ -119,13 +142,21 @@ const getEpisodeData = async function(rsslink, podcast) {
                       episode.save(function(err) {
                         if (err) throw err;
                         //console.log("Saved episode!");
+                      }).catch((err)=>{
+                        
                       });
+
+                    
                     }
                   } catch (err) {
                     console.log(podcast.show_title + " threw and exception!");
                     console.log(err);
                   }
-                }
+              });
+               /*  for (var i = 0; i < episodelist.length; i++) {
+                  var ep = episodelist[i];
+                  
+                } */
               }
             }
           }
