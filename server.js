@@ -25,6 +25,7 @@ var ItunesPodcast = ext_models.itunespodcast;
 var ItunesQueryParams = ext_models.itunesqueryparams;
 
 var ItunesPodcastUpdater = require('./services/ItunesPodcastUpdater');
+var ItunesEpisodeUpdater = require('./services/ItunesEpisodeUpdater');
 
 
 var AUDIOSEARCH_APP_ID =
@@ -51,24 +52,26 @@ const initializeDB = async () => {
 
   conn.on("error", console.error.bind(console, "connection error:"));
 
-  await conn.once("open", function() {
+  await conn.once("open", async () => {
     console.log("MongoDB connection established!");
-    ItunesPodcastUpdater.updateData();
-  });
+   // await ItunesPodcastUpdater.updateData();
+   // await ItunesPodcastUpdater.updatePodcastReleaseDates();
+   // await ItunesEpisodeUpdater.updateData();
 
-/*    
-Episode.nextCount(function(err, count) {
+  });
+ 
+/*  Episode.resetCount(function(err, count) {
   // count === 1 -> true
 });
 
-Tag.nextCount(function(err, count) {
-    // count === 1 -> true
-  });
-
-Podcast.nextCount(function(err, count) {
+Tag.resetCount(function(err, count) {
   // count === 1 -> true
-}); */
-    
+});
+
+Podcast.resetCount(function(err, count) {
+  // count === 1 -> true
+});   
+    */ 
 };
 
 const initializeData = function() {
@@ -130,14 +133,6 @@ initializeData();
 
 
 
-
-//updatePodcastData();
-//getRSSDataForPodcasts();
-
-
-
-
-
 /******** Begin section for handling server requests**************** */
 
 var server = app.listen(9000, function() {
@@ -145,6 +140,16 @@ var server = app.listen(9000, function() {
   var port = server.address().port;
 
   console.log("Example app listening at http://%s:%s", host, port);
+});
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  next();
 });
 
 //Get all podcasts
