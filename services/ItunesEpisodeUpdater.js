@@ -85,17 +85,7 @@ const getEpisodeData = async function(rsslink, podcast) {
                     //  episode.image_url = null; // ep["itunes:image"][0].length > 0 ? ep["itunes:image"][0].$.href : null;
 
                       episode.show = podcast;
-/* 
-                        if (ep.hasOwnProperty("itunes:image")) {
-                          var objImg = ep["itunes:image"][0];
-                          if(objImg != null) {
-                            episode.image_url = objImg.$.href;                           
-                          }                        
-                        } else if (ep.hasOwnProperty("image")) {
-                          episode.image_url = ep.image[0].url[0];                        
-                        } else {
-                          episode.image_url = null;
-                        } */
+
 
 
                       if (ep.hasOwnProperty("itunes:author")) {

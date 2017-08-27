@@ -54,24 +54,14 @@ const initializeDB = async () => {
 
   await conn.once("open", async () => {
     console.log("MongoDB connection established!");
-   // await ItunesPodcastUpdater.updateData();
+   await ItunesPodcastUpdater.resetIdentities();
+   await ItunesPodcastUpdater.updateData();
    // await ItunesPodcastUpdater.updatePodcastReleaseDates();
    // await ItunesEpisodeUpdater.updateData();
 
   });
  
-/*  Episode.resetCount(function(err, count) {
-  // count === 1 -> true
-});
 
-Tag.resetCount(function(err, count) {
-  // count === 1 -> true
-});
-
-Podcast.resetCount(function(err, count) {
-  // count === 1 -> true
-});   
-    */ 
 };
 
 const initializeData = function() {
@@ -82,7 +72,7 @@ const initializeData = function() {
   };
 
   // insertDefaultPodcastCategories(); //Method that updates the Categories collection/table with initial data if there is none.
-  insertDefaultTags(); //Method that updates the Tags collection/table with initial data if there is none.
+  //insertDefaultTags(); //Method that updates the Tags collection/table with initial data if there is none.
   // insertBasePodcastList(); //Method that updates the Base Podcast collection/table with initial data if there is none.
 };
 

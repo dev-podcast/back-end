@@ -36,7 +36,10 @@ podcastSchema.plugin(AutoIncrement.plugin, {
 
 //Static method that queries the DB and returns all podcasts
 podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) {
-  var promise = this.model("Podcast").find({}).exec();
+  var promise = this.model("Podcast")
+    .populate("tags", "code description")
+    .find({})
+    .exec();
   return promise.then(function(docs) {
     if (docs != null && docs.length > 0) {
       var resultset = [];
@@ -54,7 +57,11 @@ podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) {
 
 //Static method that gets a podcast with the specified show_id
 podcastSchema.statics.getPodcastByID = function getPodcastByID(id, callback) {
-  var promise = this.model("Podcast").where("_id").equals(id).exec();
+  var promise = this.model("Podcast")
+    .find({ _id: id })
+    .populate("tags", "code description")
+    .exec();
+  //.where("_id").equals(id).exec();
   return promise.then(function(doc) {
     if (doc != null && doc.length > 0) {
       var result = doc[0]._doc;
@@ -71,6 +78,7 @@ podcastSchema.statics.getPodcastsByTitle = function getPodcastsByTitle(
 ) {
   var promise = this.model("Podcast")
     .findOne({ show_title: name })
+    .populate("tags", "code description")
     .exec();
   return promise.then(function(doc) {
     if (doc != null && doc.length > 0) {
@@ -87,6 +95,7 @@ podcastSchema.statics.searchPodcastsByTitle = function searchPodcastsByTitle(
 ) {
   var promise = this.model("Podcast")
     .find({ show_title: { $regex: name, $options: "i" } })
+    .populate("tags", "code description")
     .exec();
   return promise.then(function(docs) {
     if (docs != null && docs.length > 0) {
@@ -110,10 +119,11 @@ podcastSchema.statics.getRecentPodcasts = function getRecentPodcasts(
   var promise = this.model("Podcast")
     .find(
       {},
-      "show_id show_title description img_url show_url pod_release_date artists tags"
+      "show_id show_title description image_url show_url pod_release_date artists tags"
     )
     .sort({ pod_release_date: -1 })
     .limit(limitTo)
+    .populate('tags', 'code description')
     .exec();
   return promise.then(function(docs) {
     if (docs != null && docs.length > 0) {
@@ -137,7 +147,9 @@ podcastSchema.statics.getAllPodcastsByTag = async function getAllPodcastsByTag(
   //var promise = this.model('Podcast').where('tag._id').equals(tag);
   var self = this;
   var resultset = [];
-  var tagPromise = Tag.findOne({ _id: tag }).exec();
+  var tagPromise = Tag.findOne({ _id: tag })
+    .populate("tags", "code description")
+    .exec();
   var associatedPodcasts = [];
   return tagPromise.then(async function(tag) {
     if (tag != null) {
@@ -162,7 +174,10 @@ podcastSchema.statics.getPodcastsByCategory = function getPodcastsByCategory(
   cat,
   callback
 ) {
-  var promise = this.model("Podcast").where("category.code").equals(cat);
+  var promise = this.model("Podcast")
+    .find({ "category.code": cat })
+    .populate("tags", "code description")
+    .exec();
   return promise.then(function(doc) {
     if (doc != null && doc.length > 0) {
       var result = doc[0]._doc;
