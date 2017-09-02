@@ -65,13 +65,7 @@ const createPodcast = async function(response) {
           var d = new Date(responsePod.releaseDate);
           podcast.pod_release_date = d;
         }
-
   
-       
-        if (responsePod.trackName == "Microsoft Azure Cloud Cover Show (HD) - Channel 9") {
-           console.log(responsePod.trackName);
-        }
-          
           return setCategoryAndPodcastUrl(responsePod.trackName, podcast)
             .then(function(pod) {
               if(pod != null) {
@@ -93,15 +87,6 @@ const createPodcast = async function(response) {
             .catch(err => {
               if (err) throw err;
             });
-
-        /*   await BasePodcast.findOne({ title: responsePod.trackName })
-          .select("podcast_site category")
-          .exec(function(err, basepod) {
-            if (basepod != null) {
-              podcast.show_url = basepod._doc.podcast_site;
-              podcast.category = basepod._doc.category;
-            }
-          }); */
       }
     })
     .then(async data => {
@@ -249,26 +234,32 @@ const queryOrInsertTags = async function(genres, podcast) {
 };
 
 var x = 0;
+var r =0;
 
-const iterationMethod = async function(x, arr) {
+const iteratePodcasts = async function(x, arr) {
 
   var itunesid = arr[x];
   
   var options = await buildItunesQuery(itunesid);
-  await buildPodcastData(options).then(function(podcast) {
-    if (podcast != null) {
-     // console.log("Checking out podcast no: " + i);
-      console.log(podcast);
-      podcasts.push(podcast);
-    }
-  });
-
+  await buildPodcastData(options);
+  
   x++;
   
   if(x < arr.length){
-    iterationMethod(x, arr);
+    iteratePodcasts(x, arr);
   }
 
+}
+
+const iterateReleaseDates = async function(r, arr) {
+    var itunesid = arr[r];
+    var options = await buildItunesQuery(itunesid);
+    await getLatestEpisodeDate(options);
+   console.log("Done checking release date for itunesid: " + itunesid);  
+    r++; 
+    if(r < arr.length) {
+      iterateReleaseDates(r, arr);
+    }
 }
 
 class ItunesPodcastUpdater {
@@ -277,9 +268,9 @@ class ItunesPodcastUpdater {
   static updateData() {
     var podcasts = [];
     BasePodcast.getAllItunesIds()
-      .then(async result => {
+      .then(result => {
        if (result != null && result.length > 0) {     
-           iterationMethod(x, result);
+           iteratePodcasts(x, result);
        }
       })
       .catch(err => {
@@ -291,14 +282,7 @@ class ItunesPodcastUpdater {
     BasePodcast.getAllItunesIds()
       .then(result => {
         if (result != null && result.length > 0) {
-          var listOfIds = result;
-          var count = 1;
-          listOfIds.forEach(async itunesid => {
-            var options = await buildItunesQuery(itunesid);
-            await getLatestEpisodeDate(options);
-            count++;
-            console.log("Updated " + count + " podcasts so far.");
-          });
+          iterateReleaseDates(r, result);
         }
       })
       .catch(err => {

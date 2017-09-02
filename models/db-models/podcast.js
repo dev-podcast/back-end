@@ -32,14 +32,18 @@ podcastSchema.plugin(AutoIncrement.plugin, {
   field: "show_id"
 });
 
+
+
+
+
 //podcastSchema.plugin(AutoIncrement, { inc_field: "show_id" });
 
 //Static method that queries the DB and returns all podcasts
 podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) {
-  var promise = this.model("Podcast")
-    .populate("tags", "code description")
-    .find({})
-    .exec();
+  var promise = Podcast
+  .find({})
+  .populate("tags", "code description")
+  .exec();
   return promise.then(function(docs) {
     if (docs != null && docs.length > 0) {
       var resultset = [];
@@ -52,6 +56,8 @@ podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) {
     } else {
       return new Array();
     }
+  }).catch(err => {
+    console.log(err);
   });
 };
 
@@ -195,9 +201,9 @@ podcastSchema.statics.getPodcastCount = function getPodcastCount(callback) {
   });
 };
 
-
 //Create a model using the schema we created.
 var Podcast = mongoose.model("Podcast", podcastSchema);
+
 
 //Make this available to our Node application.
 module.exports = Podcast;

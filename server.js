@@ -38,7 +38,7 @@ var audiosearch = new Audiosearch(AUDIOSEARCH_APP_ID, AUDIOSEARCH_SECRET);
 
 const initializeDB = async () => {
   // Connection URL to the podcast database
-  var localurl = "mongodb://localhost:27017/podcasts";
+  var localurl = "mongodb://localhost:27017/dev-podcasts";
   var mlabUrl =
     "mongodb://admin:thisiscs50@ds129143.mlab.com:29143/dev-podcasts";
   var options = {
@@ -54,11 +54,19 @@ const initializeDB = async () => {
 
   await conn.once("open", async () => {
     console.log("MongoDB connection established!");
-   await ItunesPodcastUpdater.resetIdentities();
-   await ItunesPodcastUpdater.updateData();
+   //await ItunesPodcastUpdater.resetIdentities();
+   //await ItunesPodcastUpdater.updateData();
    // await ItunesPodcastUpdater.updatePodcastReleaseDates();
-   // await ItunesEpisodeUpdater.updateData();
+   //await ItunesEpisodeUpdater.updateData();
 
+    setInterval(function(){
+      ItunesPodcastUpdater.updatePodcastReleaseDates();
+   },600000); 
+
+   setInterval(function(){
+    ItunesEpisodeUpdater.updateData();
+   },900000);
+ 
   });
  
 
