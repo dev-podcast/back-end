@@ -5,6 +5,7 @@ var Schema = mongoose.Schema;
 var AutoIncrement = require("mongoose-auto-increment");
 var ObjectId = require("mongoose").Types.ObjectId;
 
+
 AutoIncrement.initialize(mongoose.connection);
 
 var episodeSchema = new Schema({
@@ -25,20 +26,25 @@ var episodeSchema = new Schema({
   // guests: [{ type: Schema.Types.ObjectId, ref: 'Guests'}]
 });
 
+
+episodeSchema.plugin(AutoIncrement.plugin, {
+  model: "Episode",
+  field: "ep_id"
+});
+
+//episodeSchema.plugin(AutoIncrement, { inc_field: "ep_id" });
+
+
+
 //Static method that queries the DB and returns all episodes
 episodeSchema.statics.getAllEpisodes = function getAllEpisodes(
-  show_id,
-  callback
+  show_id
 ) {
   var self = this;
-  var _id = null;
-  try {
-    _id = new ObjectId(show_id);
-  } catch (err) {
-    return err;
-  }
   var promise = self
-    .find({ show: { $in: [_id] } })
+    .find({
+            show: show_id
+          })
     .sort({ published_date: -1 })
     .exec();
   return promise.then(function(docs) {
@@ -57,7 +63,7 @@ episodeSchema.statics.getAllEpisodes = function getAllEpisodes(
 };
 
 //Static method that gets a podcast with the specified show_id
-episodeSchema.statics.getEpisodesByID = function getEpisodesByID(id, callback) {
+episodeSchema.statics.getEpisodesByID = function getEpisodesByID(id) {
   var self = this;
   var promise = this.model("Episode").where("_id").equals(id).exec();
   return promise.then(function(doc) {
@@ -72,19 +78,18 @@ episodeSchema.statics.getEpisodesByID = function getEpisodesByID(id, callback) {
 
 episodeSchema.statics.getAllEpisodesByTag = function getAllEpisodesByTag(
   show_id,
-  tag,
-  callback
+  tag_id
 ) {
-  try {
+  /* try {
     _id = new ObjectId(show_id);
   } catch (err) {
     return err;
-  }
+  } */
   var self = this;
   var tagPromise = self
     .findOne({
-      _id: tag,
-      show: { $in: [_id] }
+      _id: tag_id,
+      show: show_id
     })
     .exec();
   var associatedEpisodes = [];
@@ -118,19 +123,15 @@ episodeSchema.statics.getAllEpisodesByTag = function getAllEpisodesByTag(
 
 episodeSchema.statics.getRecentEpisodes = function getRecentEpisodes(
   show_id,
-  limitTo,
-  callback
+  limitTo
 ) {
   var self = this;
-  var _id = null;
-  try {
-    _id = new ObjectId(show_id);
-  } catch (err) {
-    console.log(err);
-    return new Array();
-  }
+  
+
   var promise = self
-    .find({ show: _id })
+    .find({
+            show: show_id
+          })
     .sort({ published_date: -1 })
     .limit(limitTo)
     .exec();
@@ -149,10 +150,6 @@ episodeSchema.statics.getRecentEpisodes = function getRecentEpisodes(
   });
 };
 
-
-episodeSchema.plugin(AutoIncrement.plugin, {model: 'Episode', field: 'ep_id'});
-
-//episodeSchema.plugin(AutoIncrement, { inc_field: "ep_id" });
 
 var Episode = mongoose.model("Episode", episodeSchema);
 
