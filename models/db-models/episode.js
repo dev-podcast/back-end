@@ -78,7 +78,7 @@ episodeSchema.statics.getEpisodesByID = function getEpisodesByID(id) {
 
 episodeSchema.statics.getAllEpisodesByTag = function getAllEpisodesByTag(
   show_id,
-  tag
+  tag_id
 ) {
   /* try {
     _id = new ObjectId(show_id);
@@ -88,7 +88,7 @@ episodeSchema.statics.getAllEpisodesByTag = function getAllEpisodesByTag(
   var self = this;
   var tagPromise = self
     .findOne({
-      _id: tag,
+      _id: tag_id,
       show: show_id
     })
     .exec();
