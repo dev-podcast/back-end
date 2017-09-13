@@ -147,13 +147,16 @@ podcastSchema.statics.getRecentPodcasts = function getRecentPodcasts(
 };
 
 podcastSchema.statics.getAllPodcastsByTag = async function getAllPodcastsByTag(
-  tag,
+  tag_id,
   callback
 ) {
   //var promise = this.model('Podcast').where('tag._id').equals(tag);
   var self = this;
   var resultset = [];
-  var tagPromise = Tag.findOne({ _id: tag })
+ // var _id = new ObjectID(tag);
+  var tagPromise = Tag.findOne({
+                                 _id: tag_id
+                               })
     .populate("tags", "code description")
     .exec();
   var associatedPodcasts = [];

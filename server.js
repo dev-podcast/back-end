@@ -47,7 +47,7 @@ const initializeDB = async () => {
   };
 
   mongoose.Promise = Promise; //Set the promise object for mongoose.
-  mongoose.connect(mlabUrl, options); //Connect to the running mongoDB instance
+  mongoose.connect(localurl, options); //Connect to the running mongoDB instance
   var conn = mongoose.connection;
 
   conn.on("error", console.error.bind(console, "connection error:"));
@@ -197,10 +197,10 @@ app.get("/api/podcasts/recents", function(req, res) {
 
 
 //Get all podcasts that contain the specified tag
-app.get("/api/podcasts/tag/:tag", function(req, res) {
-  var tag = req.params.tag;
+app.get("/api/podcasts/tag/:tag_id", function(req, res) {
+  var tag_id = req.params.tag_id;
    Podcast
-     .getAllPodcastsByTag(tag)
+     .getAllPodcastsByTag(tag_id)
      .then(result => {
        res.end(JSON.stringify(result));
      })
@@ -228,7 +228,7 @@ app.get("/api/category", function(req, res) {
     });
 }); */
 
-/* //Get the podcast with the specified ID
+ //Get the podcast with the specified ID
 app.get("/api/podcasts/:id", function(req, res) {
   var id = req.params.id;
    Podcast.getPodcastByID(id)
@@ -238,9 +238,9 @@ app.get("/api/podcasts/:id", function(req, res) {
     .catch(err => {
       console.log(err);
     });
-}); */
+}); 
 
-/* //Get podcasts that matched the given string
+//Get podcasts that matched the given string
 app.get("/api/podcasts/search/:name", function(req, res) {
   var name = req.params.name;
    Podcast.searchPodcastsByTitle(name)
@@ -250,7 +250,7 @@ app.get("/api/podcasts/search/:name", function(req, res) {
     .catch(err => {
       console.log(err);
     });
-}); */
+});
 
 
 
@@ -282,19 +282,21 @@ app.get("/api/episodes/:id", function(req, res) {
 //Get all episodes for the specified podcast
 app.get("/api/podcasts/episodes/:show_id", function(req, res) {
   //Main page
-  var id = req.params.show_id;
-   Episode
-     .getAllEpisodes(id)
-     .then(result => {
-       res.end(JSON.stringify(result));
-     })
-     .catch(err => {
-       console.log(err);
-     });
+  var show_id = req.params.show_id;
+
+ Episode.getAllEpisodes(show_id)
+   .then(result => {
+     res.end(JSON.stringify(result));
+   })
+   .catch(err => {
+     console.log(err);
+   });
 });
 
+
+
 //Get recent podcasts default is last 15;
-app.get("/api/podcasts/episodes/recents/:show_id/", function(req, res) {
+app.get("/api/podcasts/episodes/recents/:show_id", function(req, res) {
   //Recents
   var limitTo = 15;
   var show_id = req.params.show_id;
