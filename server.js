@@ -47,7 +47,7 @@ const initializeDB = async () => {
   };
 
   mongoose.Promise = Promise; //Set the promise object for mongoose.
-  mongoose.connect(localurl, options); //Connect to the running mongoDB instance
+  mongoose.connect(mlabUrl, options); //Connect to the running mongoDB instance
   var conn = mongoose.connection;
 
   conn.on("error", console.error.bind(console, "connection error:"));
