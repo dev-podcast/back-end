@@ -1,4 +1,5 @@
 //This object represents the structure of the podcast list that was obtained from https://simpleprogrammer.com/2016/10/29/ultimate-list-developer-podcasts/
+var logger = require("winston");   
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
@@ -21,7 +22,8 @@ basePodSchema.statics.getAllBasePodcasts = function getAllBasePodcasts(callback)
             docs.foreach(function(record){
                 resultset.push(record._doc);
             });
-            console.log(docs);
+             //logger.log("info", docs);
+            //console.log(docs);
             return resultset;
         }
     })

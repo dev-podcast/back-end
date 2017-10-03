@@ -1,4 +1,5 @@
 "use strict";
+var logger = require("winston");   
 const db_models = require("../models/db-models");
 const ext_models = require("../models/ext-models");
 const request = require("request-promise");
@@ -38,6 +39,8 @@ const getLatestEpisodeDate = async options => {
         }
       }
     }
+  }).catch(err => {
+    logger.log('error', err);
   });
 };
 
@@ -71,7 +74,8 @@ const createPodcast = async function(response) {
               if(pod != null) {
 
               var genres = responsePod.genres;
-              console.log(responsePod.trackName);
+              logger.log('info', responsePod.trackName);
+           //   console.log(responsePod.trackName);
               //await queryOrInsertTags(genres, podcast);
               return pod
                 .save()
@@ -97,7 +101,8 @@ const createPodcast = async function(response) {
       }
     })
     .catch(function(err) {
-      console.log(err);
+      logger.log('error', err);
+     // console.log(err);
     });
 };
 
@@ -116,7 +121,8 @@ const buildTagsForPodcast = function(data) {
              processTags(x + 1);
               return resolved;
            }).catch(err => {
-                console.log(err);
+             logger.log("error", err);   
+            // console.log(err);
            });       
        });
 
@@ -161,7 +167,11 @@ const setCategoryAndPodcastUrl = function(trackname, podcast) {
         return null;
       }
   }).catch(err => {
-      throw err;
+     logger.log("error", err, {
+       track: trackname,
+       pod: podcast
+     });
+     // throw err;
   });
 };
 
@@ -194,38 +204,50 @@ const queryOrInsertTags = async function(genres, podcast) {
               tag._doc.associated_podcasts.push(podcast);
               tag.save(err => {
                 if (err) {
-                  console.log(doc);
-                  console.log(genre);
-                  console.log(err);
+                   logger.log("error", err, {
+                        document: doc, 
+                        genre: genre 
+                   });
+                //  console.log(doc);
+                // console.log(genre);
+                //  console.log(err);
                 }
               });
               podcast._doc.tags.push(tag);
               podcast
                 .save(err => {
                   if (err) {
-                    console.log(err);
+                     logger.log("error", err);
+                   // console.log(err);
                   }
                 })
-                .catch(err => {});
+                .catch(err => {
+                   logger.log("error", err);
+                });
             } else {
               tag = doc;
               tag._doc.associated_podcasts.push(podcast);
               tag.save(err => {
                 if (err) {
-                  console.log(err);
+                   logger.log("error", err);
+                  //console.log(err);
                 }
               });
               podcast._doc.tags.push(tag);
               podcast
                 .save(err => {
                   if (err) {
-                    console.log(err);
+                     logger.log("error", err);
+                    //console.log(err);
                   }
                 })
-                .catch(err => {});
+                .catch(err => {
+                   logger.log("error", err);
+                });
             }
           } catch (err) {
-            console.log(err);
+             logger.log("error", err);
+            //console.log(err);
           }
         });
       }
@@ -274,7 +296,8 @@ class ItunesPodcastUpdater {
        }
       })
       .catch(err => {
-        console.log(err);
+         logger.log("error", err);
+        //console.log(err);
       });
   }
 
@@ -286,7 +309,8 @@ class ItunesPodcastUpdater {
         }
       })
       .catch(err => {
-        console.log(err);
+         logger.log("error", err);
+      //  console.log(err);
       });
   }
 

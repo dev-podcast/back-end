@@ -1,4 +1,5 @@
 "use strict";
+var logger = require("winston");   
 const db_models = require("../models/db-models");
 const request = require("request-promise");
 const Episode = db_models.episode;
@@ -12,6 +13,7 @@ var e = 0;
 const iteratePodcasts = async function(x, arr) {
   var podcast = arr[x];
   await buildEpisodeData(podcast.feed_url, podcast);
+   logger.log("info", "Done updating episodes for podcast: "+ podcast.show_title);
   console.log("Done updating episodes for podcast: "+ podcast.show_title);
   x++;
   if (x < arr.length) {
@@ -32,6 +34,11 @@ const buildEpisodeData = async function(feed_url, podcast) {
   var promise = queryUrl(feed_url);
   return promise.then(async res => {
     await gatherEpisodes(res, podcast);
+  }).catch(err => {
+    logger.log("error", err, {
+        url: feed_url, 
+        pod: podcast
+    });
   });
 };
 
@@ -145,6 +152,7 @@ const createEpisode = async function(ep, podcast) {
       }
     })
     .catch(err => {
+      logger.log("error", err);
       if (err) throw err;
     });
 };
@@ -167,7 +175,8 @@ const buildTagsForEpisode = function(data) {
               return resolved;
             })
             .catch(err => {
-              console.log(err);
+               logger.log("error", err);
+             // console.log(err);
             });
         });
       }
@@ -178,7 +187,8 @@ const buildTagsForEpisode = function(data) {
 
 const createTag = function(episode, tagstring) {
   if (tagstring == undefined) {
-    console.log(tagstring);
+     logger.log("info", "Empty string for episode: " + episode);
+    //console.log(tagstring);
   }
   var promise = Tag.findOne({ description: tagstring.toString() });
   return promise.then(tag => {
@@ -193,6 +203,7 @@ const createTag = function(episode, tagstring) {
         return tag;
       })
       .catch(err => {
+         logger.log("error", err);
         if (err) throw err;
       });
   });
@@ -206,7 +217,8 @@ const queryUrl = async function(url) {
       return res;
     })
     .catch(err => {
-      console.log(err);
+       logger.log("error", err);
+      //console.log(err);
     });
 };
 
