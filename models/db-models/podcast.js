@@ -1,5 +1,6 @@
 // ** podcast.js **/
 
+var logger = require("winston");   
 var mongoose = require("mongoose"); //Reference mongoose.
 var Schema = mongoose.Schema;
 var AutoIncrement = require("mongoose-auto-increment");
@@ -57,7 +58,8 @@ podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) {
       return new Array();
     }
   }).catch(err => {
-    console.log(err);
+    logger.log("error", err);
+    //console.log(err);
   });
 };
 

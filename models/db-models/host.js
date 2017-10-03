@@ -1,4 +1,5 @@
 // ** host.js **/
+var logger = require("winston");   
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema; 
 

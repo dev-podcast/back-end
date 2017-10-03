@@ -1,5 +1,5 @@
 /*** Tag.js */
-
+var logger = require("winston");   
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var AutoIncrement = require("mongoose-auto-increment");
@@ -37,7 +37,8 @@ tagSchema.statics.tagExists = function tagExists(descr, callback) {
                   try {
                       result = doc[0]._doc;
                     }catch (err){
-                        console.log(err);
+                        logger.log("error", err);
+                       // console.log(err);
                     }
                     return result;
               } else {

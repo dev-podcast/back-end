@@ -17,6 +17,7 @@ var Podcast = db_models.podcast;
 var Tag = db_models.tag; 
 var Tags = db_models.tags;
 var request = require("request-promise"); 
+var logger  = require('./lib/log.js');
 
 
 var ext_models = require("./models/ext-models");
@@ -137,7 +138,8 @@ var server = app.listen(9000, function() {
   var host = server.address().address;
   var port = server.address().port;
 
-  console.log("Example app listening at http://%s:%s", host, port);
+   logger.log("info", "App is listening.");
+  console.log("App is listening", host, port);
 });
 
 app.use(function(req, res, next) {
@@ -159,6 +161,7 @@ app.get("/api/podcasts", function(req, res) {
        res.end(JSON.stringify(result));
      })
      .catch(err => {
+        logger.log("error", err);
        console.log(err);
      });
 });
@@ -176,6 +179,7 @@ app.get("/api/podcasts/recents/:limit", function(req, res) {
        res.end(JSON.stringify(result));
      })
      .catch(err => {
+        logger.log("error", err);
        console.log(err);
      });
 });
@@ -190,6 +194,7 @@ app.get("/api/podcasts/recents", function(req, res) {
        res.end(JSON.stringify(result));
      })
      .catch(err => {
+        logger.log("error", err);
        console.log(err);
      });
 });
@@ -204,7 +209,9 @@ app.get("/api/podcasts/tag/:tag_id", function(req, res) {
      .then(result => {
        res.end(JSON.stringify(result));
      })
-     .catch(err => {});
+     .catch(err => {
+        logger.log("error", err);
+     });
 });
 /* 
 //All podcasts for a specific category
@@ -236,6 +243,7 @@ app.get("/api/podcasts/:id", function(req, res) {
       res.end(JSON.stringify(result));
     })
     .catch(err => {
+       logger.log("error", err);
       console.log(err);
     });
 }); 
@@ -248,6 +256,7 @@ app.get("/api/podcasts/search/:name", function(req, res) {
       res.end(JSON.stringify(result));
     })
     .catch(err => {
+       logger.log("error", err);
       console.log(err);
     });
 });
@@ -275,6 +284,7 @@ app.get("/api/episodes/:id", function(req, res) {
        res.end(JSON.stringify(result));
      })
      .catch(err => {
+        logger.log("error", err);
        console.log(err);
      });
 });
@@ -289,6 +299,7 @@ app.get("/api/podcasts/episodes/:show_id", function(req, res) {
      res.end(JSON.stringify(result));
    })
    .catch(err => {
+      logger.log("error", err);
      console.log(err);
    });
 });
@@ -306,6 +317,7 @@ app.get("/api/podcasts/episodes/recents/:show_id", function(req, res) {
        res.end(JSON.stringify(result));
      })
      .catch(err => {
+        logger.log("error", err);
        console.log(err);
      });
 });
@@ -325,6 +337,7 @@ app.get("/api/podcasts/episodes/recents/:show_id/:limit", function(req, res) {
        res.end(JSON.stringify(result));
      })
      .catch(err => {
+        logger.log("error", err);
        console.log(err);
      });
 });

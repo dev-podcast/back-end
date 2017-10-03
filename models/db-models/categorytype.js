@@ -1,6 +1,6 @@
 
 
-
+var logger = require("winston");   
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema; 
 
@@ -35,6 +35,7 @@ categorySchema.statics.getCategoryByCode = function getCategoryByCode(code,callb
                     try {
                         result = doc[0]._doc;
                     }catch (err){
+                         logger.log("error", err);
                         console.log(err);
                     }
                    
@@ -55,9 +56,10 @@ categorySchema.statics.getCategoryByName = function getCategoryByName(name,callb
                     try {
                          var result = doc[0]._doc;
                     }catch (err){
-                        console.log(err);
-                        console.log("Value of doc")
-                        console.log(doc);
+                         logger.log("error", err);
+                      //  console.log(err);
+                       /// console.log("Value of doc")
+                      //  console.log(doc);
                     }
                     console.log(result);
                     return result;
