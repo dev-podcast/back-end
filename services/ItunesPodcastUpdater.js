@@ -1,5 +1,5 @@
 "use strict";
-var logger = require("winston");   
+var logger = require("winston");
 const db_models = require("../models/db-models");
 const ext_models = require("../models/ext-models");
 const request = require("request-promise");
@@ -11,7 +11,7 @@ const Tag = db_models.tag;
 
 const base_lookup_url = "https://itunes.apple.com/lookup/";
 
-const buildItunesQuery = function(id) {
+const buildItunesQuery = function (id) {
   var url = base_lookup_url + id;
   var options = {
     method: "GET",
@@ -44,7 +44,7 @@ const getLatestEpisodeDate = async options => {
   });
 };
 
-const createPodcast = async function(response) {
+const createPodcast = async function (response) {
   var responsePod = response.results[0];
   var query = Podcast.findOne({
     show_title: responsePod.trackName.toString()
@@ -68,29 +68,29 @@ const createPodcast = async function(response) {
           var d = new Date(responsePod.releaseDate);
           podcast.pod_release_date = d;
         }
-  
-          return setCategoryAndPodcastUrl(responsePod.trackName, podcast)
-            .then(function(pod) {
-              if(pod != null) {
+
+        return setCategoryAndPodcastUrl(responsePod.trackName, podcast)
+          .then(function (pod) {
+            if (pod != null) {
 
               var genres = responsePod.genres;
               logger.log('info', responsePod.trackName);
-           //   console.log(responsePod.trackName);
+              //   console.log(responsePod.trackName);
               //await queryOrInsertTags(genres, podcast);
               return pod
                 .save()
-                .then(function(savePod) {
+                .then(function (savePod) {
                   var data = { tags: genres, podcast: savePod };
                   return data;
                 })
-                .catch(function(err) {
+                .catch(function (err) {
                   if (err) throw err;
                 });
-              }
-            })
-            .catch(err => {
-              if (err) throw err;
-            });
+            }
+          })
+          .catch(err => {
+            if (err) throw err;
+          });
       }
     })
     .then(async data => {
@@ -100,33 +100,33 @@ const createPodcast = async function(response) {
         // return podcast;
       }
     })
-    .catch(function(err) {
+    .catch(function (err) {
       logger.log('error', err);
-     // console.log(err);
+      // console.log(err);
     });
 };
 
-const buildTagsForPodcast = function(data) {
+const buildTagsForPodcast = function (data) {
   if (data != null) {
     var podcast = data.podcast;
     var itunesTags = data.tags;
     var promises = [];
     var x = 0;
 
-    var processTags = function(x) {
-      if( x < itunesTags.length){
-       createTag(podcast, itunesTags[x]).then(function(tag){
-           podcast._doc.tags.push(tag);
-           return podcast.save().then(function(resolved) {
-             processTags(x + 1);
-              return resolved;
-           }).catch(err => {
-             logger.log("error", err);   
+    var processTags = function (x) {
+      if (x < itunesTags.length) {
+        createTag(podcast, itunesTags[x]).then(function (tag) {
+          podcast._doc.tags.push(tag);
+          return podcast.save().then(function (resolved) {
+            processTags(x + 1);
+            return resolved;
+          }).catch(err => {
+            logger.log("error", err);
             // console.log(err);
-           });       
-       });
+          });
+        });
 
-        
+
       }
     }
 
@@ -134,11 +134,11 @@ const buildTagsForPodcast = function(data) {
   }
 };
 
-const createTag = function(podcast, itunestag) {
+const createTag = function (podcast, itunestag) {
   // console.log("Podcast: " + podcast._doc.show_title);
   // console.log("Tag to insert: " + itunestag);
   var promise = Tag.findOne({ description: itunestag });
-  return promise.then(function(tag) {
+  return promise.then(function (tag) {
     if (tag == null) {
       tag = new Tag();
       tag.description = itunestag;
@@ -146,36 +146,36 @@ const createTag = function(podcast, itunestag) {
     tag._doc.associated_podcasts.push(podcast);
     return tag
       .save()
-      .then(function(tag) {
+      .then(function (tag) {
         return tag;
       })
-      .catch(function(err) {
+      .catch(function (err) {
         return err;
       });
   });
 };
 
-const setCategoryAndPodcastUrl = function(trackname, podcast) {
-  var promise = BasePodcast.findOne({title: trackname}).select("podcast_site category");
-  return promise.then(function(basepod) {
+const setCategoryAndPodcastUrl = function (trackname, podcast) {
+  var promise = BasePodcast.findOne({ title: trackname }).select("podcast_site category");
+  return promise.then(function (basepod) {
     var name = trackname;
-      if(basepod) {
-           podcast.show_url = basepod._doc.podcast_site;
-           podcast.category = basepod._doc.category;
-           return podcast;
-      } else {
-        return null;
-      }
+    if (basepod) {
+      podcast.show_url = basepod._doc.podcast_site;
+      podcast.category = basepod._doc.category;
+      return podcast;
+    } else {
+      return null;
+    }
   }).catch(err => {
-     logger.log("error", err, {
-       track: trackname,
-       pod: podcast
-     });
-     // throw err;
+    logger.log("error", err, {
+      track: trackname,
+      pod: podcast
+    });
+    // throw err;
   });
 };
 
-const buildPodcastData = async function(options) {
+const buildPodcastData = async function (options) {
   var promiseRequest = request(options);
 
   return promiseRequest.then(async response => {
@@ -185,7 +185,7 @@ const buildPodcastData = async function(options) {
   });
 };
 
-const queryOrInsertTags = async function(genres, podcast) {
+const queryOrInsertTags = async function (genres, podcast) {
   var tags = new Array();
 
   if (genres.length > 0) {
@@ -204,32 +204,32 @@ const queryOrInsertTags = async function(genres, podcast) {
               tag._doc.associated_podcasts.push(podcast);
               tag.save(err => {
                 if (err) {
-                   logger.log("error", err, {
-                        document: doc, 
-                        genre: genre 
-                   });
-                //  console.log(doc);
-                // console.log(genre);
-                //  console.log(err);
+                  logger.log("error", err, {
+                    document: doc,
+                    genre: genre
+                  });
+                  //  console.log(doc);
+                  // console.log(genre);
+                  //  console.log(err);
                 }
               });
               podcast._doc.tags.push(tag);
               podcast
                 .save(err => {
                   if (err) {
-                     logger.log("error", err);
-                   // console.log(err);
+                    logger.log("error", err);
+                    // console.log(err);
                   }
                 })
                 .catch(err => {
-                   logger.log("error", err);
+                  logger.log("error", err);
                 });
             } else {
               tag = doc;
               tag._doc.associated_podcasts.push(podcast);
               tag.save(err => {
                 if (err) {
-                   logger.log("error", err);
+                  logger.log("error", err);
                   //console.log(err);
                 }
               });
@@ -237,16 +237,16 @@ const queryOrInsertTags = async function(genres, podcast) {
               podcast
                 .save(err => {
                   if (err) {
-                     logger.log("error", err);
+                    logger.log("error", err);
                     //console.log(err);
                   }
                 })
                 .catch(err => {
-                   logger.log("error", err);
+                  logger.log("error", err);
                 });
             }
           } catch (err) {
-             logger.log("error", err);
+            logger.log("error", err);
             //console.log(err);
           }
         });
@@ -256,48 +256,102 @@ const queryOrInsertTags = async function(genres, podcast) {
 };
 
 var x = 0;
-var r =0;
+var r = 0;
 
-const iteratePodcasts = async function(x, arr) {
+const iteratePodcasts = async function (x, arr) {
 
   var itunesid = arr[x];
-  
+
   var options = await buildItunesQuery(itunesid);
   await buildPodcastData(options);
-  
+
   x++;
-  
-  if(x < arr.length){
+
+  if (x < arr.length) {
     iteratePodcasts(x, arr);
   }
 
 }
 
-const iterateReleaseDates = async function(r, arr) {
-    var itunesid = arr[r];
-    var options = await buildItunesQuery(itunesid);
-    await getLatestEpisodeDate(options);
-   console.log("Done checking release date for itunesid: " + itunesid);  
-    r++; 
-    if(r < arr.length) {
-      iterateReleaseDates(r, arr);
-    }
+var u = 0;
+const iteratePodcastForEpisodeSubDocuments = async function (x, arr) {
+  var pod = arr[u];
+  var promise = Episode.find({ show: pod._id })
+    .exec();
+  var promiseRecent = Episode.find({ show: pod._id}).sort({ published_date: -1 }).limit(15)
+  .exec(); 
+
+return promise.then(res => {
+  console.log("Updating: " + pod.show_title);
+    if (res != null && res.length > 0) {    
+      pod.episodes = res; 
+      return pod.save()
+      .then(p => {
+        return promiseRecent.then(res => {
+          if (res != null && res.length > 0) {
+            pod.recent_episodes = res; 
+            return pod.save()
+            .then(p => {
+              u++;
+              if (u < arr.length) {
+                iteratePodcastForEpisodeSubDocuments(u, arr);
+              }
+            });
+          }
+        });
+        // u++;
+        // if (u < arr.length) {
+        //   iterateToUpdatePodEpisodes(u, arr);
+        // }
+      });
+     
+    }else {
+      u++;
+      if (u < arr.length) {
+        iteratePodcastForEpisodeSubDocuments(u, arr);
+       }
+    }   
+  
+  });
+
+}
+
+const iterateReleaseDates = async function (r, arr) {
+  var itunesid = arr[r];
+  var options = await buildItunesQuery(itunesid);
+  await getLatestEpisodeDate(options);
+  console.log("Done checking release date for itunesid: " + itunesid);
+  r++;
+  if (r < arr.length) {
+    iterateReleaseDates(r, arr);
+  }
 }
 
 class ItunesPodcastUpdater {
-  constructor() {}
+  constructor() { }
 
   static updateData() {
     var podcasts = [];
     BasePodcast.getAllItunesIds()
       .then(result => {
-       if (result != null && result.length > 0) {     
-           iteratePodcasts(x, result);
-       }
+        if (result != null && result.length > 0) {
+          iteratePodcasts(x, result);
+        }
       })
       .catch(err => {
-         logger.log("error", err);
+        logger.log("error", err);
         //console.log(err);
+      });
+  }
+
+  static populateEpisodeSubDocuments() {
+    Podcast.getAllPodcasts()
+      .then(result => {
+        if (result != null && result.length > 0) {
+          iteratePodcastForEpisodeSubDocuments(x, result);
+        }
+      }).catch(err => {
+        logger.log("error", err);
       });
   }
 
@@ -309,21 +363,24 @@ class ItunesPodcastUpdater {
         }
       })
       .catch(err => {
-         logger.log("error", err);
-      //  console.log(err);
+        logger.log("error", err);
+        //  console.log(err);
       });
   }
 
   static resetIdentities() {
-    Episode.resetCount(function(err, count) {
+    Episode.resetCount(function (err, count) {
+      if(err) throw err;
       // count === 1 -> true
     });
 
-    Tag.resetCount(function(err, count) {
+    Tag.resetCount(function (err, count) {
+      if(err) throw err;
       // count === 1 -> true
     });
 
-    Podcast.resetCount(function(err, count) {
+    Podcast.resetCount(function (err, count) {
+      if(err) throw err;
       // count === 1 -> true
     });
   }

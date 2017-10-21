@@ -4,7 +4,8 @@ var logger = require("winston");
 var mongoose = require("mongoose"); //Reference mongoose.
 var Schema = mongoose.Schema;
 var AutoIncrement = require("mongoose-auto-increment");
-var Tag = require("./tag.js").Tag;
+var Tag = require("./tag.js");
+var Episode = require("./episode.js");
 
 //Define our model's properties/attributes and their respective types.
 var podcastSchema = new Schema({
@@ -23,6 +24,7 @@ var podcastSchema = new Schema({
   category: [{ type: Schema.Types.ObjectId, ref: "CategoryType" }],
   host: [{ type: Schema.Types.ObjectId, ref: "Host" }],
   recent_episode_date: Date,
+  episodes: [{type: Schema.Types.ObjectId, ref: "Episode"}], 
   tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }] //Reference the Tag/Focus schema
 });
 
@@ -50,7 +52,7 @@ podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) {
       var resultset = [];
       var len = docs.length;
       docs.forEach(function(record) {
-        resultset.push(record._doc);
+        resultset.push(record);
       });
       //console.log(docs);
       return resultset;
@@ -126,18 +128,24 @@ podcastSchema.statics.getRecentPodcasts = function getRecentPodcasts(
 ) {
   var promise = this.model("Podcast")
     .find(
-      {},
-      "show_id show_title description image_url show_url pod_release_date artists tags"
+      {   episodes: {$not: {$size: 0}} },
+      "show_id show_title description image_url show_url pod_release_date artists tags episodes recent_episodes"
     )
     .sort({ pod_release_date: -1 })
     .limit(limitTo)
+    .populate({
+      path: 'episodes',
+      model: 'Episode',
+      options: { sort: {published_date: -1}}
+
+  })
     .populate('tags', 'code description')
     .exec();
   return promise.then(function(docs) {
     if (docs != null && docs.length > 0) {
       var resultset = [];
       var len = docs.length;
-      docs.forEach(function(record) {
+      docs.forEach(function(record) {       
         resultset.push(record._doc);
       });
       //  console.log(docs);
