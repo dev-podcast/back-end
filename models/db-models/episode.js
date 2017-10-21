@@ -21,7 +21,6 @@ var episodeSchema = new Schema({
   created_date: Date,
   image_url: String,
   source_url: String,
-
   tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }]
   // guests: [{ type: Schema.Types.ObjectId, ref: 'Guests'}]
 });
@@ -131,6 +130,7 @@ episodeSchema.statics.getRecentEpisodes = function getRecentEpisodes(
   var promise = self
     .find({
             show: show_id
+          
           })
     .sort({ published_date: -1 })
     .limit(limitTo)

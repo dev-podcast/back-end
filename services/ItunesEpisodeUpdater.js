@@ -67,7 +67,16 @@ const createEpisode = async function(ep, podcast) {
         var episode = new Episode();
         var currentdate = new Date(Date.now()).toLocaleString();
         episode.created_date = currentdate;
-        episode.title = ep.title[0];
+        var cleanedTitle = ep.title[0].toString();
+        cleanedTitle =  cleanedTitle.replace(podcast.show_title, '');
+        cleanedTitle =cleanedTitle.replace('Episode','');
+        cleanedTitle =cleanedTitle.replace('episode','');
+        cleanedTitle =cleanedTitle.replace('-','');
+        cleanedTitle =cleanedTitle.replace(' - ','');
+        cleanedTitle =cleanedTitle.replace('Podcast','');
+        cleanedTitle =cleanedTitle.replace('podcast','');
+        cleanedTitle = cleanedTitle.trim();
+        episode.title = cleanedTitle;
 
         if (ep.enclosure == undefined) {
           episode.audio_url = null;
