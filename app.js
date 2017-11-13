@@ -87,10 +87,10 @@ class ExpressInitializer {
 
 
     //Get all podcasts that contain the specified tag
-    app.get("/api/podcasts/tag/:tag_id", function (req, res) {
-      var tag_id = req.params.tag_id;
+    app.get("/api/podcasts/tagname/:tagname", function (req, res) {
+      var tagname = req.params.tagname;
       Podcast
-        .getAllPodcastsByTag(tag_id)
+        .getAllPodcastsByTagName(tagname)
         .then(result => {
           res.end(JSON.stringify(result));
         })
@@ -98,6 +98,18 @@ class ExpressInitializer {
           logger.log("error", err);
         });
     });
+
+    // app.get("/api/podcasts/tagid/:tag_id", function (req, res) {
+    //   var tag_id = req.params.tag_id;
+    //   Podcast
+    //     .getAllPodcastsByTagId(tag_id)
+    //     .then(result => {
+    //       res.end(JSON.stringify(result));
+    //     })
+    //     .catch(err => {
+    //       logger.log("error", err);
+    //     });
+    // });
     /* 
     //All podcasts for a specific category
     app.get("/api/podcasts/category/:type", function(req, res) {
