@@ -25,6 +25,7 @@ var podcastSchema = new Schema({
   host: [{ type: Schema.Types.ObjectId, ref: "Host" }],
   recent_episode_date: Date,
   episodes: [{type: Schema.Types.ObjectId, ref: "Episode"}], 
+  recent_episodes: [{type: Schema.Types.ObjectId, ref: "Episode"}],
   tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }] //Reference the Tag/Focus schema
 });
 
@@ -127,16 +128,15 @@ podcastSchema.statics.getRecentPodcasts = function getRecentPodcasts(
   callback
 ) {
   var promise = this.model("Podcast")
-    .find(
-      {   episodes: {$not: {$size: 0}} },
-      "show_id show_title description image_url show_url pod_release_date artists tags episodes recent_episodes"
-    )
+    .find({},"show_id show_title description image_url show_url pod_release_date artists tags recent_episodes")
     .sort({ pod_release_date: -1 })
     .limit(limitTo)
     .populate({
-      path: 'episodes',
+      path: 'recent_episodes',
       model: 'Episode',
-      options: { sort: {published_date: -1}}
+      options: { 
+        limit: 10,
+        sort: {published_date: -1}}
 
   })
     .populate('tags', 'code description')
@@ -156,18 +156,52 @@ podcastSchema.statics.getRecentPodcasts = function getRecentPodcasts(
   });
 };
 
-podcastSchema.statics.getAllPodcastsByTag = async function getAllPodcastsByTag(
+podcastSchema.statics.getAllPodcastsByTagName = async function getAllPodcastsByTagName(
+  tagname,
+  callback
+) {
+  //var promise = this.model('Podcast').where('tag._id').equals(tag);
+  var self = this;
+  var resultset = [];
+  var tagPromise = Tag.findOne({
+                                 description: {$regex: tagname, $options: "i"}
+                               })
+    .populate({ 
+      path: "associated_podcasts"
+      , populate: { path:"associated_podcasts.tags"}})
+    .exec();
+  var associatedPodcasts = [];
+  return tagPromise.then(async function(tag) {
+    if (tag != null) {
+      associatedPodcasts = tag._doc.associated_podcasts;
+      if (associatedPodcasts.length > 0) {
+        return self.find(
+          {
+            _id: {
+              $in: associatedPodcasts
+            }
+          },
+          "show_title show_id description img_url show_url pod_release_date artists tags recent_episode_date"
+        ).populate("tags");
+      }
+    }
+    return new Array();
+  });
+};
+
+podcastSchema.statics.getAllPodcastsByTagId = async function getAllPodcastsByTagId(
   tag_id,
   callback
 ) {
   //var promise = this.model('Podcast').where('tag._id').equals(tag);
   var self = this;
   var resultset = [];
- // var _id = new ObjectID(tag);
-  var tagPromise = Tag.findOne({
-                                 _id: tag_id
+  var _id = new ObjectID(tag_id);
+ //find({ show_title: { $regex: name, $options: "i" } })
+  var tagPromise = Podcast.find({
+                                 tags: {$in:_id }
                                })
-    .populate("tags", "code description")
+    .populate("associated_podcasts")
     .exec();
   var associatedPodcasts = [];
   return tagPromise.then(async function(tag) {
@@ -187,6 +221,7 @@ podcastSchema.statics.getAllPodcastsByTag = async function getAllPodcastsByTag(
     return new Array();
   });
 };
+
 
 //Static method that gets the podcasts with the specified category code
 podcastSchema.statics.getPodcastsByCategory = function getPodcastsByCategory(
