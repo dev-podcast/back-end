@@ -31,12 +31,12 @@ var ItunesPodcastUpdater = require('./services/ItunesPodcastUpdater');
 var ItunesEpisodeUpdater = require('./services/ItunesEpisodeUpdater');
 
 
-var AUDIOSEARCH_APP_ID =
+/* var AUDIOSEARCH_APP_ID =
   "d4dad46362e5e54ee74ef0cc027f72a05e81e8cc39529661115e7e78d0998414";
 var AUDIOSEARCH_SECRET =
   "42aecc8fe642e535e01861e40e38a45e8f97ae616b6c6883a9cafe8bb4f3b80f";
 var audiosearch = new Audiosearch(AUDIOSEARCH_APP_ID, AUDIOSEARCH_SECRET);
-
+ */
 //Server start
 
 const initializeDB = async () => {
