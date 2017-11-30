@@ -6,6 +6,7 @@ var Schema = mongoose.Schema;
 var AutoIncrement = require("mongoose-auto-increment");
 var Tag = require("./tag.js");
 var Episode = require("./episode.js");
+var ObjectId = require("mongoose").Types.ObjectId;
 
 //Define our model's properties/attributes and their respective types.
 var podcastSchema = new Schema({
@@ -68,8 +69,15 @@ podcastSchema.statics.getAllPodcasts = function getAllPodcasts(callback) {
 
 //Static method that gets a podcast with the specified show_id
 podcastSchema.statics.getPodcastByID = function getPodcastByID(id, callback) {
+  var p_id = new ObjectId(id);
   var promise = this.model("Podcast")
-    .find({ _id: id })
+    .find({ _id: p_id })
+    .populate({
+      path: 'recent_episodes',
+      model: 'Episode',
+      options: {         
+        sort: {published_date: -1}}
+  })
     .populate("tags", "code description")
     .exec();
   //.where("_id").equals(id).exec();
@@ -186,6 +194,8 @@ podcastSchema.statics.getAllPodcastsByTagName = async function getAllPodcastsByT
       }
     }
     return new Array();
+  }).catch(err => {
+    console.log(err);
   });
 };
 
